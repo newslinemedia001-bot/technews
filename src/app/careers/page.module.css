@@ -1,0 +1,124 @@
+.loading {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-tertiary);
+}
+
+.jobList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.jobCard {
+    background-color: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    transition: all var(--transition-fast);
+}
+
+.jobCard:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-md);
+}
+
+.jobHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.jobHeader h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.jobType {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.375rem 0.75rem;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border-radius: var(--radius-full);
+}
+
+.jobLocation {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    margin-bottom: 1rem;
+}
+
+.jobDescription {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.applyBtn {
+    display: inline-block;
+    padding: 0.625rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background-color: var(--color-accent);
+    color: var(--color-white);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.applyBtn:hover {
+    background-color: var(--color-accent-dark);
+    color: var(--color-white);
+}
+
+.noJobs {
+    padding: 3rem 2rem;
+    text-align: center;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    margin: 2rem 0;
+}
+
+.noJobs p {
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+}
+
+.noJobs a {
+    color: var(--color-accent);
+}
+
+.contactBox {
+    background-color: var(--bg-secondary);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    margin-top: 3rem;
+    text-align: center;
+}
+
+.contactBox h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.contactBox p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.contactBox a {
+    color: var(--color-accent);
+    font-weight: 600;
+}
