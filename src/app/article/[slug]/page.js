@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getArticleBySlug, incrementViews, getLatestArticles } from '@/lib/articles';
@@ -23,6 +22,7 @@ export default function ArticlePage({ params }) {
     useEffect(() => {
         const fetchArticle = async () => {
             try {
+                // PHASE 1: Load main article FIRST (critical content)
                 const articleData = await getArticleBySlug(slug);
 
                 if (!articleData) {
@@ -32,45 +32,89 @@ export default function ArticlePage({ params }) {
                 }
 
                 setArticle(articleData);
+                setLoading(false); // Show article immediately
 
-                // Increment views
-                await incrementViews(articleData.id);
+                // Increment views (non-blocking)
+                incrementViews(articleData.id).catch(err => 
+                    console.error('Error incrementing views:', err)
+                );
 
-                // Fetch related articles from same category first, then latest
-                const { getArticlesByCategory } = await import('@/lib/articles');
-                let related = [];
-                
-                // Try to get articles from same category
-                if (articleData.category) {
-                    const categoryResult = await getArticlesByCategory(articleData.category, 6);
-                    related = categoryResult.articles.filter(a => a.id !== articleData.id);
-                }
-                
-                // If not enough, add latest articles
-                if (related.length < 4) {
-                    const latestResult = await getLatestArticles(6);
-                    const latest = latestResult.articles.filter(a => 
-                        a.id !== articleData.id && !related.find(r => r.id === a.id)
-                    );
-                    related = [...related, ...latest];
-                }
-                
-                setRelatedArticles(related.slice(0, 4));
+                // PHASE 2: Load related content in background (non-blocking)
+                setTimeout(async () => {
+                    try {
+                        const { getArticlesByCategory } = await import('@/lib/articles');
+                        let related = [];
+                        
+                        // Try to get articles from same category
+                        if (articleData.category) {
+                            const categoryResult = await getArticlesByCategory(articleData.category, 6);
+                            related = categoryResult.articles.filter(a => a.id !== articleData.id);
+                        }
+                        
+                        // If not enough, add latest articles
+                        if (related.length < 4) {
+                            const latestResult = await getLatestArticles(6);
+                            const latest = latestResult.articles.filter(a => 
+                                a.id !== articleData.id && !related.find(r => r.id === a.id)
+                            );
+                            related = [...related, ...latest];
+                        }
+                        
+                        setRelatedArticles(related.slice(0, 4));
 
-                // Fetch "Read Also" articles (latest 7 for inline links + sidebar)
-                const readAlsoResult = await getLatestArticles(8);
-                const readAlso = readAlsoResult.articles.filter(a => a.id !== articleData.id).slice(0, 7);
-                setReadAlsoArticles(readAlso);
+                        // Fetch "Read Also" articles (6 total: 3 inline + 3 bottom)
+                        const readAlsoResult = await getLatestArticles(8);
+                        const readAlso = readAlsoResult.articles.filter(a => a.id !== articleData.id).slice(0, 6);
+                        setReadAlsoArticles(readAlso);
+                    } catch (err) {
+                        console.error('Error loading related articles:', err);
+                    }
+                }, 100); // Small delay to prioritize main content rendering
             } catch (err) {
                 console.error('Error fetching article:', err);
                 setError('Failed to load article');
-            } finally {
                 setLoading(false);
             }
         };
 
         fetchArticle();
     }, [slug]);
+
+    // Update document title and meta tags when article loads
+    useEffect(() => {
+        if (article) {
+            document.title = `${article.title} - TechNews`;
+            
+            // Update meta tags for social sharing
+            const metaDescription = article.excerpt || stripHtml(article.content).substring(0, 160);
+            const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://technews.co.ke';
+            
+            const updateMetaTag = (property, content, isProperty = true) => {
+                if (!content) return;
+                const attribute = isProperty ? 'property' : 'name';
+                let meta = document.querySelector(`meta[${attribute}="${property}"]`);
+                if (!meta) {
+                    meta = document.createElement('meta');
+                    meta.setAttribute(attribute, property);
+                    document.head.appendChild(meta);
+                }
+                meta.setAttribute('content', content);
+            };
+
+            // Open Graph tags
+            updateMetaTag('og:type', 'article');
+            updateMetaTag('og:title', article.title);
+            updateMetaTag('og:description', metaDescription);
+            updateMetaTag('og:image', article.featuredImage || `${siteUrl}/logo.png`);
+            updateMetaTag('og:url', `${siteUrl}/article/${article.slug}`);
+            
+            // Twitter tags
+            updateMetaTag('twitter:card', 'summary_large_image', false);
+            updateMetaTag('twitter:title', article.title, false);
+            updateMetaTag('twitter:description', metaDescription, false);
+            updateMetaTag('twitter:image', article.featuredImage || `${siteUrl}/logo.png`, false);
+        }
+    }, [article]);
 
     if (loading) {
         return (
@@ -144,42 +188,11 @@ export default function ArticlePage({ params }) {
         );
     }
 
-    const category = getCategoryById(article.category);
-    const readingTime = calculateReadingTime(article.content);
-
-    const metaDescription = article.excerpt || stripHtml(article.content).substring(0, 160);
-    const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://technews.co.ke';
-    const articleUrl = `${siteUrl}/article/${article.slug}`;
+    const category = article ? getCategoryById(article.category) : null;
+    const readingTime = article ? calculateReadingTime(article.content) : '';
 
     return (
         <>
-            <Head>
-                <title>{article.title} - TechNews</title>
-                <meta name="description" content={metaDescription} />
-                
-                {/* Open Graph / Facebook */}
-                <meta property="og:type" content="article" />
-                <meta property="og:url" content={articleUrl} />
-                <meta property="og:title" content={article.title} />
-                <meta property="og:description" content={metaDescription} />
-                {article.featuredImage && <meta property="og:image" content={article.featuredImage} />}
-                <meta property="og:site_name" content="TechNews" />
-                
-                {/* Twitter */}
-                <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:url" content={articleUrl} />
-                <meta name="twitter:title" content={article.title} />
-                <meta name="twitter:description" content={metaDescription} />
-                {article.featuredImage && <meta name="twitter:image" content={article.featuredImage} />}
-                
-                {/* Article specific */}
-                <meta property="article:published_time" content={article.createdAt?.toDate?.()?.toISOString()} />
-                <meta property="article:author" content={article.author || 'TechNews'} />
-                {article.tags && article.tags.map((tag, i) => (
-                    <meta key={i} property="article:tag" content={tag} />
-                ))}
-            </Head>
-            
             {/* Article Header */}
             <article className={styles.article}>
                 {/* Hero */}
@@ -275,18 +288,54 @@ export default function ArticlePage({ params }) {
                                     </div>
                                 )}
 
-                                {/* Article Body */}
+                                {/* Article Body with Injected Read Also Links */}
                                 <div
                                     className={styles.articleContent}
-                                    dangerouslySetInnerHTML={{ __html: article.content }}
+                                    dangerouslySetInnerHTML={{ 
+                                        __html: (() => {
+                                            let content = article.content?.replace(/contenteditable="false"/g, '') || '';
+                                            
+                                            // Only inject if we have read also articles
+                                            if (readAlsoArticles.length >= 6) {
+                                                // Split content into paragraphs
+                                                const paragraphs = content.split('</p>');
+                                                const totalParagraphs = paragraphs.length;
+                                                
+                                                // Calculate positions to inject (roughly 25%, 50%, 75% through the article)
+                                                const positions = [
+                                                    Math.floor(totalParagraphs * 0.25),
+                                                    Math.floor(totalParagraphs * 0.50),
+                                                    Math.floor(totalParagraphs * 0.75)
+                                                ];
+                                                
+                                                // Create read also boxes for injection
+                                                const createReadAlsoBox = (articles, startIndex) => `
+                                                    <p class="${styles.readAlsoInline}"><strong class="${styles.readAlsoInlineTitle}">Read Also:</strong> ${articles.slice(startIndex, startIndex + 1).map(article => `<a href="/article/${article.slug}" class="${styles.readAlsoInlineLink}">${article.title}</a>`).join('')}</p>
+                                                `;
+                                                
+                                                // Inject read also boxes at calculated positions
+                                                let injectedCount = 0;
+                                                positions.forEach((pos, index) => {
+                                                    if (pos < paragraphs.length && injectedCount < 3) {
+                                                        paragraphs[pos] += '</p>' + createReadAlsoBox(readAlsoArticles, injectedCount);
+                                                        injectedCount++;
+                                                    }
+                                                });
+                                                
+                                                content = paragraphs.join('</p>');
+                                            }
+                                            
+                                            return content;
+                                        })()
+                                    }}
                                 />
 
-                                {/* Read Also - Inline Links */}
-                                {readAlsoArticles.length > 0 && (
+                                {/* Read Also - Bottom Box (3 remaining links) */}
+                                {readAlsoArticles.length > 3 && (
                                     <div className={styles.readAlsoBox}>
                                         <h3 className={styles.readAlsoBoxTitle}>Read Also</h3>
                                         <ul className={styles.readAlsoList}>
-                                            {readAlsoArticles.map((readArticle) => (
+                                            {readAlsoArticles.slice(3, 6).map((readArticle) => (
                                                 <li key={readArticle.id} className={styles.readAlsoItem}>
                                                     <Link href={`/article/${readArticle.slug}`} className={styles.readAlsoLink}>
                                                         {readArticle.title}
@@ -370,30 +419,12 @@ export default function ArticlePage({ params }) {
                                     </p>
                                 </div>
 
-                                {/* Newsletter */}
-                                <div className={styles.widget}>
-                                    <h4 className={styles.widgetTitle}>Newsletter</h4>
-                                    <p className={styles.widgetText}>
-                                        Get the latest tech news delivered to your inbox.
-                                    </p>
-                                    <form className={styles.newsletterForm}>
-                                        <input
-                                            type="email"
-                                            placeholder="Your email"
-                                            className={styles.newsletterInput}
-                                        />
-                                        <button type="submit" className={styles.newsletterBtn}>
-                                            Subscribe
-                                        </button>
-                                    </form>
-                                </div>
-
                                 {/* Trending Articles */}
-                                {readAlsoArticles.length > 0 && (
-                                    <div className={styles.widget}>
-                                        <h4 className={styles.widgetTitle}>Trending Now</h4>
-                                        <div className={styles.trendingList}>
-                                            {readAlsoArticles.map((trendingArticle, index) => (
+                                <div className={styles.widget}>
+                                    <h4 className={styles.widgetTitle}>Trending Now</h4>
+                                    <div className={styles.trendingList}>
+                                        {readAlsoArticles.length > 0 ? (
+                                            readAlsoArticles.map((trendingArticle, index) => (
                                                 <Link 
                                                     key={trendingArticle.id} 
                                                     href={`/article/${trendingArticle.slug}`}
@@ -418,10 +449,39 @@ export default function ArticlePage({ params }) {
                                                         </span>
                                                     </div>
                                                 </Link>
-                                            ))}
-                                        </div>
+                                            ))
+                                        ) : (
+                                            // Skeleton loaders while trending articles load
+                                            [...Array(5)].map((_, index) => (
+                                                <div key={index} className={styles.trendingItem}>
+                                                    <span className={styles.trendingNumber}>{index + 1}</span>
+                                                    <div style={{ 
+                                                        width: '80px', 
+                                                        height: '60px', 
+                                                        background: 'var(--bg-tertiary)', 
+                                                        borderRadius: 'var(--radius-sm)',
+                                                        flexShrink: 0
+                                                    }}></div>
+                                                    <div className={styles.trendingContent}>
+                                                        <div style={{ 
+                                                            height: '14px', 
+                                                            background: 'var(--bg-tertiary)', 
+                                                            borderRadius: '4px',
+                                                            marginBottom: '8px',
+                                                            width: index % 2 === 0 ? '100%' : '85%'
+                                                        }}></div>
+                                                        <div style={{ 
+                                                            height: '12px', 
+                                                            background: 'var(--bg-tertiary)', 
+                                                            borderRadius: '4px',
+                                                            width: '60px'
+                                                        }}></div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
                                     </div>
-                                )}
+                                </div>
                             </aside>
                         </div>
                     </div>

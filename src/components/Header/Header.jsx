@@ -96,6 +96,7 @@ export default function Header() {
     const [searchResults, setSearchResults] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
     const [theme, setTheme] = useState('dark');
+    const searchRef = useRef(null);
 
     useEffect(() => {
         // Initialize theme - default to dark
@@ -103,16 +104,21 @@ export default function Header() {
         setTheme(savedTheme);
         document.documentElement.setAttribute('data-theme', savedTheme);
 
-        // Close menu on outside click
+        // Close menu and search on outside click
         const handleClickOutside = (e) => {
             if (isMenuOpen && !e.target.closest(`.${styles.mobileMenu}`) && !e.target.closest(`.${styles.menuToggle}`)) {
                 setIsMenuOpen(false);
+            }
+            if (isSearchOpen && searchRef.current && !searchRef.current.contains(e.target) && !e.target.closest(`.${styles.searchToggle}`)) {
+                setIsSearchOpen(false);
+                setSearchQuery('');
+                setSearchResults([]);
             }
         };
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isMenuOpen]);
+    }, [isMenuOpen, isSearchOpen]);
 
     // Live search as user types
     useEffect(() => {
@@ -231,7 +237,7 @@ export default function Header() {
 
                         {/* Search Bar */}
                         {isSearchOpen && (
-                            <div className={styles.searchBar}>
+                            <div className={styles.searchBar} ref={searchRef}>
                                 <form onSubmit={(e) => {
                                     e.preventDefault();
                                     if (searchQuery.trim()) {

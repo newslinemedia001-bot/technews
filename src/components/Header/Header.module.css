@@ -51,52 +51,77 @@
 .logoText {
     font-size: 2rem;
     font-weight: 900;
-    letter-spacing: -1.2px;
+    letter-spacing: -1.5px;
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: 2px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    position: relative;
 }
 
 .logoPrimary {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 40%, #2563eb 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    position: relative;
     text-shadow: 
-        2px 2px 0px rgba(37, 99, 235, 0.3),
-        4px 4px 0px rgba(29, 78, 216, 0.2),
-        6px 6px 8px rgba(0, 0, 0, 0.3);
-    filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4));
+        1px 1px 0px rgba(37, 99, 235, 0.8),
+        2px 2px 0px rgba(29, 78, 216, 0.6),
+        3px 3px 0px rgba(30, 64, 175, 0.4),
+        4px 4px 0px rgba(30, 58, 138, 0.3),
+        5px 5px 10px rgba(0, 0, 0, 0.5);
+    filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.6)) 
+            drop-shadow(0 0 20px rgba(96, 165, 250, 0.4));
+    animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% {
+        filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.6)) 
+                drop-shadow(0 0 20px rgba(96, 165, 250, 0.4));
+    }
+    50% {
+        filter: drop-shadow(0 2px 12px rgba(59, 130, 246, 0.8)) 
+                drop-shadow(0 0 30px rgba(96, 165, 250, 0.6));
+    }
 }
 
 [data-theme="light"] .logoPrimary {
-    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 50%, #1e3a8a 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-shadow: 
-        2px 2px 0px rgba(30, 64, 175, 0.2),
-        4px 4px 0px rgba(30, 58, 138, 0.15),
-        6px 6px 8px rgba(0, 0, 0, 0.2);
+        1px 1px 0px rgba(37, 99, 235, 0.5),
+        2px 2px 0px rgba(30, 64, 175, 0.3),
+        3px 3px 0px rgba(30, 58, 138, 0.2),
+        4px 4px 8px rgba(0, 0, 0, 0.2);
+    filter: drop-shadow(0 2px 4px rgba(37, 99, 235, 0.3));
+    animation: none;
 }
 
 .logoAccent {
-    color: var(--color-white);
+    color: #f8fafc;
     font-weight: 900;
+    position: relative;
     text-shadow: 
-        2px 2px 0px rgba(0, 0, 0, 0.3),
+        1px 1px 0px rgba(0, 0, 0, 0.5),
+        2px 2px 0px rgba(0, 0, 0, 0.4),
+        3px 3px 0px rgba(0, 0, 0, 0.3),
         4px 4px 0px rgba(0, 0, 0, 0.2),
-        6px 6px 10px rgba(0, 0, 0, 0.4);
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        5px 5px 10px rgba(0, 0, 0, 0.6);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
 }
 
 [data-theme="light"] .logoAccent {
     color: #0f172a;
     text-shadow: 
-        1px 1px 0px rgba(255, 255, 255, 0.5),
-        2px 2px 0px rgba(0, 0, 0, 0.1),
-        4px 4px 8px rgba(0, 0, 0, 0.2);
+        1px 1px 0px rgba(255, 255, 255, 0.8),
+        2px 2px 0px rgba(0, 0, 0, 0.15),
+        3px 3px 0px rgba(0, 0, 0, 0.1),
+        4px 4px 8px rgba(0, 0, 0, 0.25);
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
 /* Left Section */
@@ -278,6 +303,23 @@
 
     .logoText {
         font-size: 1.25rem;
+    }
+
+    .mainHeaderContent {
+        gap: 0.5rem;
+    }
+
+    .leftSection {
+        gap: 0.25rem;
+    }
+
+    .rightSection {
+        gap: 0.5rem;
+    }
+
+    /* Reduce padding on mobile */
+    .mainHeader {
+        padding: 0.5rem 0;
     }
 }
 
@@ -561,6 +603,33 @@ body:has(.dashboard) .overlay {
 @media (max-width: 640px) {
     .mobileMenu {
         width: 100%;
+    }
+
+    /* Hide desktop nav on mobile */
+    .nav {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .navList {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .navList::-webkit-scrollbar {
+        display: none;
+    }
+
+    .navLink {
+        font-size: 0.75rem;
+        padding: 0.625rem 0.75rem;
+    }
+
+    /* Disable dropdowns on mobile */
+    .dropdown {
+        display: none;
     }
 }
 

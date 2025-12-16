@@ -104,19 +104,6 @@ export default function CategoryPage({ params }) {
                         <span className={styles.current}>{category.name}</span>
                     </nav>
                     <h1 className={styles.title}>{category.name}</h1>
-                    {category.subcategories && category.subcategories.length > 0 && (
-                        <div className={styles.subcategories}>
-                            {category.subcategories.map((sub) => (
-                                <Link
-                                    key={sub.id}
-                                    href={`/category/${slug}/${sub.slug}`}
-                                    className={styles.subcategoryLink}
-                                >
-                                    {sub.name}
-                                </Link>
-                            ))}
-                        </div>
-                    )}
                 </div>
             </header>
 

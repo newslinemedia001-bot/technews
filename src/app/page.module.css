@@ -96,7 +96,32 @@
 
 @media (max-width: 1024px) {
   .heroGrid {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Reorder: Featured first, Technology second, Videos third */
+  .heroMain {
+    order: 1;
+    min-height: 350px;
+    display: block !important;
+    width: 100%;
+  }
+
+  .heroSide:first-child {
+    order: 2;
+  }
+
+  .heroSide:last-child {
+    order: 3;
+  }
+
+  .heroSide {
+    height: auto;
+    max-height: none;
+    min-height: 450px;
+    width: 100%;
   }
 }
 

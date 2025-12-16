@@ -97,20 +97,28 @@ export const deleteArticle = async (articleId) => {
 
 // Get article by slug
 export const getArticleBySlug = async (slug) => {
-    const q = query(
-        collection(db, ARTICLES_COLLECTION),
-        where('slug', '==', slug),
-        where('status', '==', 'published')
-    );
+    try {
+        // Use a direct query with slug and status for faster lookup
+        const q = query(
+            collection(db, ARTICLES_COLLECTION),
+            where('slug', '==', slug),
+            where('status', '==', 'published'),
+            limit(1)
+        );
 
-    const snapshot = await getDocs(q);
+        const snapshot = await getDocs(q);
 
-    if (snapshot.empty) {
-        return null;
+        if (snapshot.empty) {
+            return null;
+        }
+
+        const articleDoc = snapshot.docs[0];
+        return { id: articleDoc.id, ...articleDoc.data() };
+    } catch (error) {
+        console.error('Error fetching article by slug:', error);
+        console.error('Error details:', error.code, error.message);
+        throw error;
     }
-
-    const doc = snapshot.docs[0];
-    return { id: doc.id, ...doc.data() };
 };
 
 // Get article by ID
