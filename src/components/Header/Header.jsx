@@ -1,14 +1,100 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { categories } from '@/lib/categories';
+import { getArticlesByCategory, searchArticles } from '@/lib/articles';
 import styles from './Header.module.css';
+
+// Category Dropdown with Latest Articles
+function CategoryDropdown({ categoryId, categorySlug, onTriggerLoad }) {
+    const [articles, setArticles] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [hasLoaded, setHasLoaded] = useState(false);
+
+    const loadArticles = async () => {
+        if (hasLoaded) return; // Already loaded
+        setLoading(true);
+        setHasLoaded(true);
+        try {
+            // Fetch only 4 articles with minimal fields for speed
+            const result = await getArticlesByCategory(categoryId, 4);
+            setArticles(result.articles || []);
+        } catch (error) {
+            console.error('Error loading category articles:', error);
+            setArticles([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Expose loadArticles to parent
+    useEffect(() => {
+        if (onTriggerLoad) {
+            onTriggerLoad.current = loadArticles;
+        }
+    }, [onTriggerLoad]);
+
+    return (
+        <div className={styles.dropdown}>
+            {loading ? (
+                <div className={styles.dropdownGrid}>
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className={styles.dropdownArticle}>
+                            <div className={styles.dropdownArticleImage} style={{ background: 'var(--bg-tertiary)' }}></div>
+                            <div className={styles.dropdownArticleContent}>
+                                <div style={{ 
+                                    height: '14px', 
+                                    background: 'var(--bg-tertiary)', 
+                                    borderRadius: '4px',
+                                    marginBottom: '8px',
+                                    width: i % 2 === 0 ? '100%' : '85%'
+                                }}></div>
+                                <div style={{ 
+                                    height: '12px', 
+                                    background: 'var(--bg-tertiary)', 
+                                    borderRadius: '4px',
+                                    width: '60%'
+                                }}></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : articles && articles.length > 0 ? (
+                <div className={styles.dropdownGrid}>
+                    {articles.map((article) => (
+                        <Link
+                            key={article.id}
+                            href={`/article/${article.slug}`}
+                            className={styles.dropdownArticle}
+                        >
+                            {article.featuredImage && (
+                                <div className={styles.dropdownArticleImage}>
+                                    <img src={article.featuredImage} alt={article.title} />
+                                </div>
+                            )}
+                            <div className={styles.dropdownArticleContent}>
+                                <h4 className={styles.dropdownArticleTitle}>{article.title}</h4>
+                                <span className={styles.dropdownArticleDate}>
+                                    {new Date(article.createdAt?.seconds * 1000).toLocaleDateString()}
+                                </span>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            ) : (
+                <div className={styles.dropdownEmpty}>No articles yet</div>
+            )}
+        </div>
+    );
+}
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [searchLoading, setSearchLoading] = useState(false);
     const [theme, setTheme] = useState('dark');
 
     useEffect(() => {
@@ -27,6 +113,29 @@ export default function Header() {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isMenuOpen]);
+
+    // Live search as user types
+    useEffect(() => {
+        const performSearch = async () => {
+            if (searchQuery.trim().length < 2) {
+                setSearchResults([]);
+                return;
+            }
+            
+            setSearchLoading(true);
+            try {
+                const results = await searchArticles(searchQuery, 5);
+                setSearchResults(results);
+            } catch (error) {
+                console.error('Search error:', error);
+            } finally {
+                setSearchLoading(false);
+            }
+        };
+
+        const debounceTimer = setTimeout(performSearch, 300);
+        return () => clearTimeout(debounceTimer);
+    }, [searchQuery]);
 
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -128,12 +237,13 @@ export default function Header() {
                                     if (searchQuery.trim()) {
                                         window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
                                         setSearchQuery('');
+                                        setSearchResults([]);
                                         setIsSearchOpen(false);
                                     }
                                 }}>
                                     <input
                                         type="text"
-                                        placeholder="Search..."
+                                        placeholder="Search articles..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         className={styles.searchInput}
@@ -146,6 +256,46 @@ export default function Header() {
                                         </svg>
                                     </button>
                                 </form>
+                                
+                                {/* Live Search Results */}
+                                {searchQuery.length >= 2 && (
+                                    <div className={styles.searchResults}>
+                                        {searchLoading ? (
+                                            <div className={styles.searchLoading}>Searching...</div>
+                                        ) : searchResults.length > 0 ? (
+                                            <>
+                                                {searchResults.map((result) => (
+                                                    <Link
+                                                        key={result.id}
+                                                        href={`/article/${result.slug}`}
+                                                        className={styles.searchResultItem}
+                                                        onClick={() => {
+                                                            setSearchQuery('');
+                                                            setSearchResults([]);
+                                                            setIsSearchOpen(false);
+                                                        }}
+                                                    >
+                                                        <h4>{result.title}</h4>
+                                                        {result.excerpt && <p>{result.excerpt.substring(0, 80)}...</p>}
+                                                    </Link>
+                                                ))}
+                                                <Link
+                                                    href={`/search?q=${encodeURIComponent(searchQuery)}`}
+                                                    className={styles.searchViewAll}
+                                                    onClick={() => {
+                                                        setSearchQuery('');
+                                                        setSearchResults([]);
+                                                        setIsSearchOpen(false);
+                                                    }}
+                                                >
+                                                    View all results →
+                                                </Link>
+                                            </>
+                                        ) : (
+                                            <div className={styles.searchNoResults}>No results found</div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -203,26 +353,34 @@ export default function Header() {
                         <li className={styles.navItem}>
                             <Link href="/" className={styles.navLink}>Home</Link>
                         </li>
-                        {categories.map((category) => (
-                            <li key={category.id} className={styles.navItem}>
-                                <Link href={`/category/${category.slug}`} className={styles.navLink}>
-                                    {category.name}
-                                </Link>
-                                {category.subcategories && category.subcategories.length > 0 && (
-                                    <div className={styles.dropdown}>
-                                        {category.subcategories.map((sub) => (
-                                            <Link
-                                                key={sub.id}
-                                                href={`/category/${category.slug}/${sub.slug}`}
-                                                className={styles.dropdownLink}
-                                            >
-                                                {sub.name}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
-                            </li>
-                        ))}
+                        {categories.map((category) => {
+                            const loadRef = { current: null };
+                            let prefetchTimer = null;
+                            
+                            return (
+                                <li 
+                                    key={category.id} 
+                                    className={styles.navItem}
+                                    onMouseEnter={() => {
+                                        // Start loading immediately on hover
+                                        loadRef.current?.();
+                                    }}
+                                    onMouseLeave={() => {
+                                        // Clear prefetch if user leaves quickly
+                                        if (prefetchTimer) clearTimeout(prefetchTimer);
+                                    }}
+                                >
+                                    <Link href={`/category/${category.slug}`} className={styles.navLink}>
+                                        {category.name}
+                                    </Link>
+                                    <CategoryDropdown 
+                                        categoryId={category.id} 
+                                        categorySlug={category.slug}
+                                        onTriggerLoad={loadRef}
+                                    />
+                                </li>
+                            );
+                        })}
                         <li className={styles.navItem}>
                             <Link href="/advertise" className={styles.navLink}>Advertise</Link>
                         </li>

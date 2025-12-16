@@ -1,0 +1,97 @@
+/* Skeleton Base */
+.skeleton {
+    pointer-events: none;
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.shimmer {
+    animation: shimmer 2s infinite linear;
+    background: linear-gradient(
+        to right,
+        var(--bg-tertiary) 0%,
+        var(--bg-secondary) 20%,
+        var(--bg-tertiary) 40%,
+        var(--bg-tertiary) 100%
+    );
+    background-size: 1000px 100%;
+}
+
+/* Skeleton Elements */
+.skeletonCategory {
+    width: 80px;
+    height: 20px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.625rem;
+}
+
+.skeletonCategorySmall {
+    width: 60px;
+    height: 14px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.375rem;
+}
+
+.skeletonTitle {
+    height: 16px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.5rem;
+}
+
+.skeletonHorizontalTitle {
+    height: 14px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.375rem;
+}
+
+.skeletonMinimalTitle {
+    height: 14px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.375rem;
+}
+
+.skeletonExcerpt {
+    height: 14px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.375rem;
+}
+
+.skeletonMeta {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.skeletonMetaItem {
+    width: 60px;
+    height: 12px;
+    border-radius: var(--radius-sm);
+}
+
+.skeletonMetaSmall {
+    width: 80px;
+    height: 11px;
+    border-radius: var(--radius-sm);
+    margin-top: 0.25rem;
+}
+
+/* Featured Skeleton */
+.skeletonFeaturedTitle {
+    height: 28px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.75rem;
+}
+
+.skeletonFeaturedExcerpt {
+    height: 16px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.5rem;
+}

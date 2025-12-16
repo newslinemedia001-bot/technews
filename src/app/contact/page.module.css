@@ -109,14 +109,18 @@
     padding: 1rem;
     font-size: 1rem;
     font-weight: 600;
-    background-color: var(--color-accent);
-    color: var(--color-white);
+    background-color: #3b82f6;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
     border: none;
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: all var(--transition-fast);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .submitBtn:hover {
-    background-color: var(--color-accent-dark);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
 }

@@ -135,3 +135,11 @@ export const getAllCategoriesFlat = () => {
 
     return flat;
 };
+
+// Get only main categories (no subcategories) for editor
+export const getMainCategoriesOnly = () => {
+    return categories.map(cat => ({
+        value: cat.id,
+        label: cat.name
+    }));
+};

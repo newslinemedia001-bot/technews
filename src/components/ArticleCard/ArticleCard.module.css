@@ -247,12 +247,40 @@
 
 /* Minimal Card */
 .minimalCard {
+    display: flex;
+    gap: 0.75rem;
     padding: 0.75rem 0;
     border-bottom: 1px solid var(--border-light);
 }
 
 .minimalCard:last-child {
     border-bottom: none;
+}
+
+.minimalImageLink {
+    flex-shrink: 0;
+}
+
+.minimalImage {
+    position: relative;
+    width: 80px;
+    height: 60px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background-color: var(--bg-tertiary);
+}
+
+.minimalPlayIcon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+.minimalContent {
+    flex: 1;
+    min-width: 0;
 }
 
 .minimalTitle {
@@ -284,4 +312,20 @@
     .featuredBody {
         padding: 1.5rem;
     }
+}
+/* Vide
+o Play Button */
+.playButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    pointer-events: none;
+    transition: transform var(--transition-fast);
+}
+
+.card:hover .playButton,
+.featuredCard:hover .playButton {
+    transform: translate(-50%, -50%) scale(1.1);
 }

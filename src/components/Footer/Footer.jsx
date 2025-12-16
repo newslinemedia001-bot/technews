@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { subscribeToNewsletter } from '@/lib/subscribers';
 import { getNavigationCategories } from '@/lib/categories';
 import styles from './Footer.module.css';
 
@@ -11,7 +10,7 @@ export default function Footer() {
     const categories = getNavigationCategories();
     const [email, setEmail] = useState('');
     const [subscribing, setSubscribing] = useState(false);
-    const [subscribed, setSubscribed] = useState(false);
+    const [message, setMessage] = useState('');
 
     const handleSubscribe = async (e) => {
         e.preventDefault();
@@ -19,15 +18,15 @@ export default function Footer() {
 
         setSubscribing(true);
         try {
-            await addDoc(collection(db, 'subscribers'), {
-                email: email.trim(),
-                createdAt: serverTimestamp()
-            });
-            setSubscribed(true);
-            setEmail('');
+            const result = await subscribeToNewsletter(email.trim());
+            setMessage(result.message);
+            if (result.success) {
+                setEmail('');
+            }
+            setTimeout(() => setMessage(''), 3000);
         } catch (error) {
             console.error('Subscribe error:', error);
-            alert('Failed to subscribe. Please try again.');
+            setMessage('Failed to subscribe. Please try again.');
         } finally {
             setSubscribing(false);
         }
@@ -108,27 +107,27 @@ export default function Footer() {
                             <p className={styles.newsletterText}>
                                 Subscribe to get the latest tech news delivered to your inbox.
                             </p>
-                            {subscribed ? (
-                                <div className={styles.subscribed}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12" />
-                                    </svg>
-                                    Thank you for subscribing!
-                                </div>
-                            ) : (
-                                <form className={styles.newsletterForm} onSubmit={handleSubscribe}>
-                                    <input
-                                        type="email"
-                                        placeholder="Enter your email"
-                                        className={styles.newsletterInput}
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                    />
-                                    <button type="submit" className={styles.newsletterBtn} disabled={subscribing}>
-                                        {subscribing ? 'Subscribing...' : 'Subscribe'}
-                                    </button>
-                                </form>
+                            <form className={styles.newsletterForm} onSubmit={handleSubscribe}>
+                                <input
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    className={styles.newsletterInput}
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                                <button type="submit" className={styles.newsletterBtn} disabled={subscribing}>
+                                    {subscribing ? 'Subscribing...' : 'Subscribe'}
+                                </button>
+                            </form>
+                            {message && (
+                                <p style={{ 
+                                    fontSize: '0.75rem', 
+                                    marginTop: '0.5rem', 
+                                    color: message.includes('Success') ? '#22c55e' : '#ef4444' 
+                                }}>
+                                    {message}
+                                </p>
                             )}
                         </div>
                     </div>

@@ -420,3 +420,11 @@
         font-size: 1.25rem;
     }
 }
+
+/* Video Preview */
+.videoPreview {
+    margin-top: 1rem;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background-color: var(--bg-tertiary);
+}

@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import ArticleCard from '@/components/ArticleCard';
+import ArticleCardSkeleton from '@/components/ArticleCard/ArticleCardSkeleton';
 import { getLatestArticles, getFeaturedArticles, getTrendingArticles, getArticlesByCategory } from '@/lib/articles';
+import { subscribeToNewsletter } from '@/lib/subscribers';
 import { categories } from '@/lib/categories';
 import styles from './page.module.css';
 
@@ -13,31 +16,44 @@ export default function HomePage() {
   const [trendingArticles, setTrendingArticles] = useState([]);
   const [categoryArticles, setCategoryArticles] = useState({});
   const [loading, setLoading] = useState(true);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [featured, latestResult, trending] = await Promise.all([
-          getFeaturedArticles(5),
-          getLatestArticles(12),
-          getTrendingArticles(5)
+        // PHASE 1: Load critical content first (hero section only)
+        const [featured, latestResult] = await Promise.all([
+          getFeaturedArticles(1), // Only 1 for hero
+          getLatestArticles(8) // Reduced from 12
         ]);
 
         setFeaturedArticles(featured);
         setLatestArticles(latestResult.articles || []);
-        setTrendingArticles(trending);
+        setLoading(false); // Show content immediately
 
-        // Fetch articles for specific categories: Technology, Business, Lifestyle, Opinion, Videos
-        const catArticles = {};
-        const categoriesToShow = ['technology', 'business', 'lifestyle', 'opinion', 'videos'];
-        for (const categoryId of categoriesToShow) {
-          const result = await getArticlesByCategory(categoryId, 4);
-          catArticles[categoryId] = result.articles;
-        }
+        // PHASE 2: Load secondary content in background (non-blocking)
+        const [trending, ...categoryResults] = await Promise.all([
+          getTrendingArticles(5),
+          getArticlesByCategory('technology', 4),
+          getArticlesByCategory('business', 4),
+          getArticlesByCategory('lifestyle', 4),
+          getArticlesByCategory('opinion', 4),
+          getArticlesByCategory('videos', 4)
+        ]);
+
+        setTrendingArticles(trending);
+        
+        const catArticles = {
+          technology: categoryResults[0].articles,
+          business: categoryResults[1].articles,
+          lifestyle: categoryResults[2].articles,
+          opinion: categoryResults[3].articles,
+          videos: categoryResults[4].articles
+        };
         setCategoryArticles(catArticles);
       } catch (error) {
         console.error('Error fetching articles:', error);
-      } finally {
         setLoading(false);
       }
     };
@@ -45,13 +61,103 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className={styles.loading}>
-        <div className={styles.spinner}></div>
-        <p>Loading articles...</p>
+  const renderSkeletons = () => (
+    <div className={styles.homepage}>
+      {/* Breaking News Ticker */}
+      <div className={styles.breakingNews}>
+        <div className="container">
+          <div className={styles.breakingNewsContent}>
+            <span className={styles.breakingLabel}>BREAKING</span>
+            <div className={styles.tickerWrapper}>
+              <div className={styles.ticker}>
+                <span>Loading latest news...</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    );
+
+      {/* Hero Section Skeleton */}
+      <section className={styles.heroSection}>
+        <div className="container">
+          <div className={styles.heroGrid}>
+            <div className={styles.heroSide}>
+              <h3 className={styles.heroSideTitle}>Technology</h3>
+              {[...Array(4)].map((_, i) => (
+                <ArticleCardSkeleton key={i} variant="minimal" />
+              ))}
+            </div>
+            <div className={styles.heroMain}>
+              <ArticleCardSkeleton variant="featured" />
+            </div>
+            <div className={styles.heroSide}>
+              <h3 className={styles.heroSideTitle}>Videos</h3>
+              {[...Array(4)].map((_, i) => (
+                <ArticleCardSkeleton key={i} variant="minimal" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content Skeleton */}
+      <section className={styles.mainContent}>
+        <div className="container">
+          <div className={styles.contentGrid}>
+            <div className={styles.mainColumn}>
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>Latest News</h2>
+                </div>
+                <div className={styles.articlesGrid}>
+                  {[...Array(4)].map((_, i) => (
+                    <ArticleCardSkeleton key={i} />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <aside className={styles.sidebar}>
+              <div className={styles.widget}>
+                <h3 className={styles.widgetTitle}>Trending</h3>
+                <div className={styles.trendingList}>
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className={styles.trendingItem}>
+                      <span className={styles.trendingNumber}>{i + 1}</span>
+                      <div style={{ 
+                        width: '60px', 
+                        height: '60px', 
+                        background: 'var(--bg-tertiary)', 
+                        borderRadius: 'var(--radius-sm)',
+                        flexShrink: 0
+                      }}></div>
+                      <div className={styles.trendingContent}>
+                        <div style={{ 
+                          height: '14px', 
+                          background: 'var(--bg-tertiary)', 
+                          borderRadius: 'var(--radius-sm)',
+                          marginBottom: '4px',
+                          width: i % 2 === 0 ? '100%' : '80%'
+                        }}></div>
+                        <div style={{ 
+                          height: '11px', 
+                          background: 'var(--bg-tertiary)', 
+                          borderRadius: 'var(--radius-sm)',
+                          width: '60px'
+                        }}></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+
+  if (loading) {
+    return renderSkeletons();
   }
 
   const hasArticles = (Array.isArray(latestArticles) && latestArticles.length > 0) || (Array.isArray(featuredArticles) && featuredArticles.length > 0);
@@ -80,12 +186,13 @@ export default function HomePage() {
               {/* Technology Articles - Left Side */}
               <div className={styles.heroSide}>
                 <h3 className={styles.heroSideTitle}>Technology</h3>
-                {categoryArticles['technology']?.slice(0, 4).map((article) => (
+                {categoryArticles['technology']?.slice(0, 3).map((article) => (
                   <ArticleCard
                     key={article.id}
                     article={article}
                     variant="minimal"
                     showMeta={true}
+                    showMinimalImage={false}
                   />
                 ))}
               </div>
@@ -100,12 +207,13 @@ export default function HomePage() {
               {/* Videos - Right Side */}
               <div className={styles.heroSide}>
                 <h3 className={styles.heroSideTitle}>Videos</h3>
-                {categoryArticles['videos']?.slice(0, 4).map((article) => (
+                {categoryArticles['videos']?.slice(0, 3).map((article) => (
                   <ArticleCard
                     key={article.id}
                     article={article}
                     variant="minimal"
                     showMeta={true}
+                    showMinimalImage={true}
                   />
                 ))}
               </div>
@@ -260,17 +368,25 @@ export default function HomePage() {
                 <div className={styles.trendingList}>
                   {Array.isArray(trendingArticles) && trendingArticles.length > 0 ? (
                     trendingArticles.map((article, index) => (
-                      <div key={article.id} className={styles.trendingItem}>
+                      <Link key={article.id} href={`/article/${article.slug}`} className={styles.trendingItem}>
                         <span className={styles.trendingNumber}>{index + 1}</span>
+                        {article.featuredImage && (
+                          <div className={styles.trendingImage}>
+                            <Image
+                              src={article.featuredImage}
+                              alt={article.title}
+                              fill
+                              sizes="60px"
+                              style={{ objectFit: 'cover' }}
+                            />
+                          </div>
+                        )}
                         <div className={styles.trendingContent}>
-                          <Link href={`/article/${article.slug}`} className={styles.trendingTitle}>
+                          <span className={styles.trendingTitle}>
                             {article.title}
-                          </Link>
-                          <span className={styles.trendingViews}>
-                            {article.views || 0} views
                           </span>
                         </div>
-                      </div>
+                      </Link>
                     ))
                   ) : (
                     <p className={styles.noItems}>No trending articles yet.</p>
@@ -301,16 +417,31 @@ export default function HomePage() {
                 <p className={styles.widgetText}>
                   Get the latest tech news delivered to your inbox.
                 </p>
-                <form className={styles.newsletterForm} onSubmit={(e) => e.preventDefault()}>
+                <form className={styles.newsletterForm} onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!newsletterEmail) return;
+                  const result = await subscribeToNewsletter(newsletterEmail);
+                  setNewsletterStatus(result.message);
+                  if (result.success) setNewsletterEmail('');
+                  setTimeout(() => setNewsletterStatus(''), 3000);
+                }}>
                   <input
                     type="email"
                     placeholder="Your email address"
                     className={styles.newsletterInput}
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    required
                   />
                   <button type="submit" className={styles.newsletterBtn}>
                     Subscribe
                   </button>
                 </form>
+                {newsletterStatus && (
+                  <p style={{ fontSize: '0.75rem', marginTop: '0.5rem', color: newsletterStatus.includes('Success') ? '#22c55e' : '#ef4444' }}>
+                    {newsletterStatus}
+                  </p>
+                )}
               </div>
             </aside>
           </div>

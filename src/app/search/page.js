@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { searchArticles } from '@/lib/articles';
-import ArticleCard from '@/components/ArticleCard';
+import ArticleCard, { ArticleCardSkeleton } from '@/components/ArticleCard';
 import styles from './page.module.css';
 
 function SearchContent() {
@@ -79,9 +79,10 @@ function SearchContent() {
                 )}
 
                 {loading ? (
-                    <div className={styles.loading}>
-                        <div className={styles.spinner}></div>
-                        <p>Searching...</p>
+                    <div className={styles.results}>
+                        {[...Array(6)].map((_, i) => (
+                            <ArticleCardSkeleton key={i} variant="horizontal" />
+                        ))}
                     </div>
                 ) : results.length > 0 ? (
                     <div className={styles.results}>

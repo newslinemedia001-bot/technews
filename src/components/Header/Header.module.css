@@ -36,6 +36,12 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.logo:hover {
+    transform: translateX(-50%) scale(1.03);
 }
 
 .logoImage {
@@ -43,27 +49,54 @@
 }
 
 .logoText {
-    font-size: 1.75rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -1.2px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
 .logoPrimary {
-    color: #1a365d;
-    /* Dark blue */
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 
+        2px 2px 0px rgba(37, 99, 235, 0.3),
+        4px 4px 0px rgba(29, 78, 216, 0.2),
+        6px 6px 8px rgba(0, 0, 0, 0.3);
+    filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4));
 }
 
 [data-theme="light"] .logoPrimary {
-    color: #13376a;
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 
+        2px 2px 0px rgba(30, 64, 175, 0.2),
+        4px 4px 0px rgba(30, 58, 138, 0.15),
+        6px 6px 8px rgba(0, 0, 0, 0.2);
 }
 
 .logoAccent {
     color: var(--color-white);
-    /* White */
+    font-weight: 900;
+    text-shadow: 
+        2px 2px 0px rgba(0, 0, 0, 0.3),
+        4px 4px 0px rgba(0, 0, 0, 0.2),
+        6px 6px 10px rgba(0, 0, 0, 0.4);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 [data-theme="light"] .logoAccent {
-    color: #111827;
+    color: #0f172a;
+    text-shadow: 
+        1px 1px 0px rgba(255, 255, 255, 0.5),
+        2px 2px 0px rgba(0, 0, 0, 0.1),
+        4px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Left Section */
@@ -529,4 +562,138 @@ body:has(.dashboard) .overlay {
     .mobileMenu {
         width: 100%;
     }
+}
+
+/* Updated Dropdown with Articles */
+.dropdown {
+    min-width: 500px !important;
+    padding: 1rem !important;
+}
+
+.dropdownGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.dropdownArticle {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    text-decoration: none;
+}
+
+.dropdownArticle:hover {
+    background-color: var(--bg-secondary);
+}
+
+.dropdownArticleImage {
+    width: 80px;
+    height: 60px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: var(--bg-tertiary);
+}
+
+.dropdownArticleImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dropdownArticleContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.dropdownArticleTitle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.dropdownArticleDate {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.dropdownLoading,
+.dropdownEmpty {
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+}
+
+/* Search Results Dropdown */
+.searchResults {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-primary);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 0.5rem;
+}
+
+.searchResultItem {
+    display: block;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-light);
+    text-decoration: none;
+    transition: background-color var(--transition-fast);
+}
+
+.searchResultItem:hover {
+    background-color: var(--bg-secondary);
+}
+
+.searchResultItem h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.searchResultItem p {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    line-height: 1.4;
+}
+
+.searchLoading,
+.searchNoResults {
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+}
+
+.searchViewAll {
+    display: block;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: none;
+    border-top: 1px solid var(--border-light);
+    transition: background-color var(--transition-fast);
+}
+
+.searchViewAll:hover {
+    background-color: var(--bg-secondary);
 }

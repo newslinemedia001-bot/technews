@@ -4,7 +4,7 @@ import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { getArticlesByCategory } from '@/lib/articles';
 import { getCategoryBySlug } from '@/lib/categories';
-import ArticleCard from '@/components/ArticleCard';
+import ArticleCard, { ArticleCardSkeleton } from '@/components/ArticleCard';
 import styles from './page.module.css';
 
 export default function CategoryPage({ params }) {
@@ -59,9 +59,26 @@ export default function CategoryPage({ params }) {
 
     if (loading) {
         return (
-            <div className={styles.loading}>
-                <div className={styles.spinner}></div>
-                <p>Loading articles...</p>
+            <div className={styles.categoryPage}>
+                <header className={styles.header}>
+                    <div className="container">
+                        <nav className={styles.breadcrumb}>
+                            <Link href="/">Home</Link>
+                            <span>/</span>
+                            <span className={styles.current}>{category?.name || 'Loading...'}</span>
+                        </nav>
+                        <h1 className={styles.title}>{category?.name || 'Loading...'}</h1>
+                    </div>
+                </header>
+                <section className={styles.articlesSection}>
+                    <div className="container">
+                        <div className={styles.articlesGrid}>
+                            {[...Array(12)].map((_, i) => (
+                                <ArticleCardSkeleton key={i} />
+                            ))}
+                        </div>
+                    </div>
+                </section>
             </div>
         );
     }
@@ -114,14 +131,21 @@ export default function CategoryPage({ params }) {
                                 ))}
                             </div>
 
-                            {hasMore && (
+                            {loadingMore && (
+                                <div className={styles.articlesGrid}>
+                                    {[...Array(4)].map((_, i) => (
+                                        <ArticleCardSkeleton key={i} />
+                                    ))}
+                                </div>
+                            )}
+
+                            {hasMore && !loadingMore && (
                                 <div className={styles.loadMore}>
                                     <button
                                         className={styles.loadMoreBtn}
                                         onClick={loadMore}
-                                        disabled={loadingMore}
                                     >
-                                        {loadingMore ? 'Loading...' : 'Load More Articles'}
+                                        Load More Articles
                                     </button>
                                 </div>
                             )}

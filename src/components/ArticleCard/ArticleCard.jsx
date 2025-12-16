@@ -12,7 +12,8 @@ export default function ArticleCard({
     showExcerpt = true,
     showCategory = true,
     showMeta = true,
-    imageHeight = 200
+    imageHeight = 200,
+    showMinimalImage = false // Only show image in minimal variant if true
 }) {
     if (!article) return null;
 
@@ -28,13 +29,23 @@ export default function ArticleCard({
                 <article className={styles.featuredCard}>
                     <div className={styles.featuredImage}>
                         {article.featuredImage ? (
-                            <Image
-                                src={article.featuredImage}
-                                alt={article.title}
-                                fill
-                                style={{ objectFit: 'cover' }}
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                            />
+                            <>
+                                <Image
+                                    src={article.featuredImage}
+                                    alt={article.title}
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                />
+                                {article.videoId && (
+                                    <div className={styles.playButton}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="12" cy="12" r="10" opacity="0.9" />
+                                            <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" />
+                                        </svg>
+                                    </div>
+                                )}
+                            </>
                         ) : (
                             <div className={styles.imagePlaceholder}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
@@ -116,14 +127,37 @@ export default function ArticleCard({
     if (variant === 'minimal') {
         return (
             <article className={styles.minimalCard}>
-                <h3 className={styles.minimalTitle}>
-                    <Link href={articleUrl}>{article.title}</Link>
-                </h3>
-                {showMeta && (
-                    <div className={styles.metaSmall}>
-                        <span>{formatRelativeDate(article.createdAt)}</span>
-                    </div>
+                {showMinimalImage && article.featuredImage && (
+                    <Link href={articleUrl} className={styles.minimalImageLink}>
+                        <div className={styles.minimalImage}>
+                            <Image
+                                src={article.featuredImage}
+                                alt={article.title}
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                sizes="80px"
+                            />
+                            {article.videoId && (
+                                <div className={styles.minimalPlayIcon}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                        <circle cx="12" cy="12" r="10" opacity="0.9" />
+                                        <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" />
+                                    </svg>
+                                </div>
+                            )}
+                        </div>
+                    </Link>
                 )}
+                <div className={styles.minimalContent}>
+                    <h3 className={styles.minimalTitle}>
+                        <Link href={articleUrl}>{article.title}</Link>
+                    </h3>
+                    {showMeta && (
+                        <div className={styles.metaSmall}>
+                            <span>{formatRelativeDate(article.createdAt)}</span>
+                        </div>
+                    )}
+                </div>
             </article>
         );
     }
@@ -134,13 +168,23 @@ export default function ArticleCard({
             <Link href={articleUrl} className={styles.imageLink}>
                 <div className={styles.imageWrapper} style={{ height: imageHeight }}>
                     {article.featuredImage ? (
-                        <Image
-                            src={article.featuredImage}
-                            alt={article.title}
-                            fill
-                            style={{ objectFit: 'cover' }}
-                            sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 25vw"
-                        />
+                        <>
+                            <Image
+                                src={article.featuredImage}
+                                alt={article.title}
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 25vw"
+                            />
+                            {article.videoId && (
+                                <div className={styles.playButton}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="12" cy="12" r="10" opacity="0.9" />
+                                        <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" />
+                                    </svg>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <div className={styles.imagePlaceholder}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">

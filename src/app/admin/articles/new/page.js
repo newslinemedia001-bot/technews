@@ -7,7 +7,8 @@ import Image from 'next/image';
 import { getCurrentAdmin } from '@/lib/auth';
 import { createArticle } from '@/lib/articles';
 import { uploadToCloudinary } from '@/lib/cloudinary';
-import { getAllCategoriesFlat } from '@/lib/categories';
+import { getMainCategoriesOnly } from '@/lib/categories';
+import { extractYouTubeId, getYouTubeThumbnail, isYouTubeUrl } from '@/lib/youtube';
 import RichTextEditor from '@/components/RichTextEditor';
 import InvitusSEO from '@/components/InvitusSEO';
 import slugify from 'slugify';
@@ -30,6 +31,7 @@ export default function NewArticle() {
     const [featuredImageCaption, setFeaturedImageCaption] = useState('');
     const [featured, setFeatured] = useState(false);
     const [status, setStatus] = useState('draft');
+    const [youtubeUrl, setYoutubeUrl] = useState('');
 
     // SEO data
     const [focusKeyword, setFocusKeyword] = useState('');
@@ -37,7 +39,7 @@ export default function NewArticle() {
     const [metaDescription, setMetaDescription] = useState('');
     const [slug, setSlug] = useState('');
 
-    const categories = getAllCategoriesFlat();
+    const categories = getMainCategoriesOnly();
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -93,6 +95,20 @@ export default function NewArticle() {
         }
     }, []);
 
+    // Handle YouTube URL change
+    const handleYouTubeUrlChange = useCallback((url) => {
+        setYoutubeUrl(url);
+        
+        if (isYouTubeUrl(url)) {
+            const videoId = extractYouTubeId(url);
+            if (videoId) {
+                // Auto-set thumbnail as featured image
+                const thumbnail = getYouTubeThumbnail(videoId);
+                setFeaturedImage(thumbnail);
+            }
+        }
+    }, []);
+
     const handleSave = async (publishStatus = 'draft') => {
         if (!title) {
             alert('Please enter a title');
@@ -114,8 +130,7 @@ export default function NewArticle() {
             const articleData = {
                 title,
                 content,
-                category: category.split('/')[0], // Get parent category
-                subcategory: category.includes('/') ? category.split('/')[1] : null,
+                category: category, // Just the main category now
                 tags: tags.split(',').map(t => t.trim()).filter(Boolean),
                 author,
                 featuredImage,
@@ -125,7 +140,9 @@ export default function NewArticle() {
                 focusKeyword,
                 seoTitle: seoTitle || title,
                 metaDescription,
-                slug
+                slug,
+                youtubeUrl: youtubeUrl || null,
+                videoId: youtubeUrl ? extractYouTubeId(youtubeUrl) : null
             };
 
             const { id, slug: newSlug } = await createArticle(articleData);
@@ -324,6 +341,37 @@ export default function NewArticle() {
                                 <small className={styles.helper}>Separate tags with commas</small>
                             </div>
                         </div>
+
+                        {/* YouTube Video - Only show for videos category */}
+                        {category === 'videos' && (
+                            <div className={styles.panel}>
+                                <h3 className={styles.panelTitle}>YouTube Video</h3>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>YouTube URL *</label>
+                                    <input
+                                        type="text"
+                                        className={styles.input}
+                                        value={youtubeUrl}
+                                        onChange={(e) => handleYouTubeUrlChange(e.target.value)}
+                                        placeholder="https://www.youtube.com/watch?v=..."
+                                    />
+                                    <small className={styles.helper}>Paste YouTube link - thumbnail will auto-set as featured image</small>
+                                </div>
+                                {youtubeUrl && extractYouTubeId(youtubeUrl) && (
+                                    <div className={styles.videoPreview}>
+                                        <iframe
+                                            width="100%"
+                                            height="200"
+                                            src={`https://www.youtube.com/embed/${extractYouTubeId(youtubeUrl)}`}
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                            style={{ borderRadius: 'var(--radius-md)' }}
+                                        ></iframe>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         {/* Author & Options */}
                         <div className={styles.panel}>

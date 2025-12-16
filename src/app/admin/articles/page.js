@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { getCurrentAdmin } from '@/lib/auth';
 import { getAllArticles, deleteArticle } from '@/lib/articles';
 import { formatRelativeDate } from '@/lib/utils';
+import styles from './page.module.css';
 
 export default function ArticlesPage() {
     const router = useRouter();
@@ -48,64 +49,73 @@ export default function ArticlesPage() {
     });
 
     if (loading) {
-        return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading articles...</div>;
+        return <div className={styles.loading}>Loading articles...</div>;
     }
 
     return (
-        <div style={{ padding: '2rem' }}>
-            <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className={styles.container}>
+            <div className={styles.header}>
                 <h1>All Articles</h1>
-                <Link href="/admin/articles/new" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#13376a', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>
+                <Link href="/admin/articles/new" className={styles.newBtn}>
                     New Article
                 </Link>
             </div>
 
-            <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem' }}>
-                <button onClick={() => setFilter('all')} style={{ padding: '0.5rem 1rem', backgroundColor: filter === 'all' ? '#13376a' : '#f3f4f6', color: filter === 'all' ? 'white' : '#111827', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+            <div className={styles.filters}>
+                <button 
+                    onClick={() => setFilter('all')} 
+                    className={`${styles.filterBtn} ${filter === 'all' ? styles.active : ''}`}
+                >
                     All ({articles.length})
                 </button>
-                <button onClick={() => setFilter('published')} style={{ padding: '0.5rem 1rem', backgroundColor: filter === 'published' ? '#13376a' : '#f3f4f6', color: filter === 'published' ? 'white' : '#111827', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+                <button 
+                    onClick={() => setFilter('published')} 
+                    className={`${styles.filterBtn} ${filter === 'published' ? styles.active : ''}`}
+                >
                     Published ({articles.filter(a => a.status === 'published').length})
                 </button>
-                <button onClick={() => setFilter('draft')} style={{ padding: '0.5rem 1rem', backgroundColor: filter === 'draft' ? '#13376a' : '#f3f4f6', color: filter === 'draft' ? 'white' : '#111827', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+                <button 
+                    onClick={() => setFilter('draft')} 
+                    className={`${styles.filterBtn} ${filter === 'draft' ? styles.active : ''}`}
+                >
                     Drafts ({articles.filter(a => a.status === 'draft').length})
                 </button>
             </div>
 
             {filteredArticles.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem' }}>
+                <div className={styles.emptyState}>
                     <p>No articles found.</p>
-                    <Link href="/admin/articles/new" style={{ display: 'inline-block', marginTop: '1rem', padding: '0.75rem 1.5rem', backgroundColor: '#13376a', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>
+                    <Link href="/admin/articles/new" className={styles.newBtn}>
                         Create First Article
                     </Link>
                 </div>
             ) : (
-                <div style={{ backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                <div className={styles.tableWrapper}>
+                    <table className={styles.table}>
+                        <thead>
                             <tr>
-                                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Title</th>
-                                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Status</th>
-                                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Category</th>
-                                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Date</th>
-                                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Actions</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredArticles.map((article) => (
-                                <tr key={article.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                                    <td style={{ padding: '1rem' }}>{article.title}</td>
-                                    <td style={{ padding: '1rem' }}>
-                                        <span style={{ padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', backgroundColor: article.status === 'published' ? '#dcfce7' : '#fef3c7', color: article.status === 'published' ? '#166534' : '#92400e' }}>
+                                <tr key={article.id}>
+                                    <td>{article.title}</td>
+                                    <td>
+                                        <span className={`${styles.statusBadge} ${styles[article.status]}`}>
                                             {article.status}
                                         </span>
                                     </td>
-                                    <td style={{ padding: '1rem' }}>{article.category}</td>
-                                    <td style={{ padding: '1rem', fontSize: '0.875rem', color: '#6b7280' }}>
+                                    <td>{article.category}</td>
+                                    <td className={styles.dateText}>
                                         {formatRelativeDate(article.createdAt)}
                                     </td>
-                                    <td style={{ padding: '1rem' }}>
-                                        <Link href={`/admin/articles/edit/${article.id}`} style={{ padding: '0.5rem 1rem', backgroundColor: '#13376a', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '0.875rem' }}>
+                                    <td>
+                                        <Link href={`/admin/articles/edit/${article.id}`} className={styles.editBtn}>
                                             Edit
                                         </Link>
                                     </td>

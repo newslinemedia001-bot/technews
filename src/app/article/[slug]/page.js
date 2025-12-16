@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
+import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getArticleBySlug, incrementViews, getLatestArticles } from '@/lib/articles';
 import { getCategoryById } from '@/lib/categories';
-import { formatArticleDate, calculateReadingTime } from '@/lib/utils';
+import { formatArticleDate, calculateReadingTime, stripHtml } from '@/lib/utils';
 import ArticleCard from '@/components/ArticleCard';
 import styles from './page.module.css';
 
@@ -15,6 +16,7 @@ export default function ArticlePage({ params }) {
 
     const [article, setArticle] = useState(null);
     const [relatedArticles, setRelatedArticles] = useState([]);
+    const [readAlsoArticles, setReadAlsoArticles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -34,9 +36,31 @@ export default function ArticlePage({ params }) {
                 // Increment views
                 await incrementViews(articleData.id);
 
-                // Fetch related articles
-                const latestResult = await getLatestArticles(4);
-                setRelatedArticles(latestResult.articles.filter(a => a.id !== articleData.id).slice(0, 3));
+                // Fetch related articles from same category first, then latest
+                const { getArticlesByCategory } = await import('@/lib/articles');
+                let related = [];
+                
+                // Try to get articles from same category
+                if (articleData.category) {
+                    const categoryResult = await getArticlesByCategory(articleData.category, 6);
+                    related = categoryResult.articles.filter(a => a.id !== articleData.id);
+                }
+                
+                // If not enough, add latest articles
+                if (related.length < 4) {
+                    const latestResult = await getLatestArticles(6);
+                    const latest = latestResult.articles.filter(a => 
+                        a.id !== articleData.id && !related.find(r => r.id === a.id)
+                    );
+                    related = [...related, ...latest];
+                }
+                
+                setRelatedArticles(related.slice(0, 4));
+
+                // Fetch "Read Also" articles (latest 7 for inline links + sidebar)
+                const readAlsoResult = await getLatestArticles(8);
+                const readAlso = readAlsoResult.articles.filter(a => a.id !== articleData.id).slice(0, 7);
+                setReadAlsoArticles(readAlso);
             } catch (err) {
                 console.error('Error fetching article:', err);
                 setError('Failed to load article');
@@ -50,10 +74,53 @@ export default function ArticlePage({ params }) {
 
     if (loading) {
         return (
-            <div className={styles.loading}>
-                <div className={styles.spinner}></div>
-                <p>Loading article...</p>
-            </div>
+            <article className={styles.article}>
+                <header className={styles.header}>
+                    <div className="container">
+                        <nav className={styles.breadcrumb}>
+                            <div style={{ width: '60px', height: '12px', background: 'var(--bg-tertiary)', borderRadius: '4px' }}></div>
+                            <span>/</span>
+                            <div style={{ width: '80px', height: '12px', background: 'var(--bg-tertiary)', borderRadius: '4px' }}></div>
+                        </nav>
+                        <div style={{ width: '120px', height: '24px', background: 'var(--bg-tertiary)', borderRadius: '4px', marginBottom: '1rem' }}></div>
+                        <div style={{ width: '80%', height: '48px', background: 'var(--bg-tertiary)', borderRadius: '8px', marginBottom: '1rem' }}></div>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div style={{ width: '40px', height: '40px', background: 'var(--bg-tertiary)', borderRadius: '50%' }}></div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ width: '150px', height: '14px', background: 'var(--bg-tertiary)', borderRadius: '4px', marginBottom: '8px' }}></div>
+                                <div style={{ width: '200px', height: '12px', background: 'var(--bg-tertiary)', borderRadius: '4px' }}></div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                <div className={styles.featuredImage}>
+                    <div className="container">
+                        <div className={styles.imageWrapper} style={{ background: 'var(--bg-tertiary)' }}></div>
+                    </div>
+                </div>
+                <div className={styles.contentWrapper}>
+                    <div className="container">
+                        <div className={styles.contentGrid}>
+                            <div className={styles.mainContent}>
+                                {[...Array(8)].map((_, i) => (
+                                    <div key={i} style={{ 
+                                        width: i % 3 === 0 ? '100%' : '95%', 
+                                        height: '16px', 
+                                        background: 'var(--bg-tertiary)', 
+                                        borderRadius: '4px',
+                                        marginBottom: '12px'
+                                    }}></div>
+                                ))}
+                            </div>
+                            <aside className={styles.sidebar}>
+                                <div className={styles.widget}>
+                                    <div style={{ width: '100%', height: '200px', background: 'var(--bg-tertiary)', borderRadius: '8px' }}></div>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                </div>
+            </article>
         );
     }
 
@@ -80,8 +147,39 @@ export default function ArticlePage({ params }) {
     const category = getCategoryById(article.category);
     const readingTime = calculateReadingTime(article.content);
 
+    const metaDescription = article.excerpt || stripHtml(article.content).substring(0, 160);
+    const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://technews.co.ke';
+    const articleUrl = `${siteUrl}/article/${article.slug}`;
+
     return (
         <>
+            <Head>
+                <title>{article.title} - TechNews</title>
+                <meta name="description" content={metaDescription} />
+                
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content="article" />
+                <meta property="og:url" content={articleUrl} />
+                <meta property="og:title" content={article.title} />
+                <meta property="og:description" content={metaDescription} />
+                {article.featuredImage && <meta property="og:image" content={article.featuredImage} />}
+                <meta property="og:site_name" content="TechNews" />
+                
+                {/* Twitter */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:url" content={articleUrl} />
+                <meta name="twitter:title" content={article.title} />
+                <meta name="twitter:description" content={metaDescription} />
+                {article.featuredImage && <meta name="twitter:image" content={article.featuredImage} />}
+                
+                {/* Article specific */}
+                <meta property="article:published_time" content={article.createdAt?.toDate?.()?.toISOString()} />
+                <meta property="article:author" content={article.author || 'TechNews'} />
+                {article.tags && article.tags.map((tag, i) => (
+                    <meta key={i} property="article:tag" content={tag} />
+                ))}
+            </Head>
+            
             {/* Article Header */}
             <article className={styles.article}>
                 {/* Hero */}
@@ -162,11 +260,42 @@ export default function ArticlePage({ params }) {
                         <div className={styles.contentGrid}>
                             {/* Main Content */}
                             <div className={styles.mainContent}>
+                                {/* YouTube Video Embed - Show if video article */}
+                                {article.videoId && (
+                                    <div className={styles.videoEmbed}>
+                                        <iframe
+                                            width="100%"
+                                            height="500"
+                                            src={`https://www.youtube.com/embed/${article.videoId}`}
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            allowFullScreen
+                                            title="Video"
+                                        ></iframe>
+                                    </div>
+                                )}
+
                                 {/* Article Body */}
                                 <div
                                     className={styles.articleContent}
                                     dangerouslySetInnerHTML={{ __html: article.content }}
                                 />
+
+                                {/* Read Also - Inline Links */}
+                                {readAlsoArticles.length > 0 && (
+                                    <div className={styles.readAlsoBox}>
+                                        <h3 className={styles.readAlsoBoxTitle}>Read Also</h3>
+                                        <ul className={styles.readAlsoList}>
+                                            {readAlsoArticles.map((readArticle) => (
+                                                <li key={readArticle.id} className={styles.readAlsoItem}>
+                                                    <Link href={`/article/${readArticle.slug}`} className={styles.readAlsoLink}>
+                                                        {readArticle.title}
+                                                    </Link>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
 
                                 {/* Tags */}
                                 {article.tags && article.tags.length > 0 && (
@@ -258,16 +387,54 @@ export default function ArticlePage({ params }) {
                                         </button>
                                     </form>
                                 </div>
+
+                                {/* Trending Articles */}
+                                {readAlsoArticles.length > 0 && (
+                                    <div className={styles.widget}>
+                                        <h4 className={styles.widgetTitle}>Trending Now</h4>
+                                        <div className={styles.trendingList}>
+                                            {readAlsoArticles.map((trendingArticle, index) => (
+                                                <Link 
+                                                    key={trendingArticle.id} 
+                                                    href={`/article/${trendingArticle.slug}`}
+                                                    className={styles.trendingItem}
+                                                >
+                                                    <span className={styles.trendingNumber}>{index + 1}</span>
+                                                    {trendingArticle.featuredImage && (
+                                                        <div className={styles.trendingImage}>
+                                                            <Image
+                                                                src={trendingArticle.featuredImage}
+                                                                alt={trendingArticle.title}
+                                                                fill
+                                                                sizes="80px"
+                                                                style={{ objectFit: 'cover' }}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <div className={styles.trendingContent}>
+                                                        <h5 className={styles.trendingTitle}>{trendingArticle.title}</h5>
+                                                        <span className={styles.trendingDate}>
+                                                            {formatArticleDate(trendingArticle.createdAt)}
+                                                        </span>
+                                                    </div>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </aside>
                         </div>
                     </div>
                 </div>
 
-                {/* Related Articles */}
+                {/* Related Articles Section */}
                 {relatedArticles.length > 0 && (
-                    <section className={styles.related}>
+                    <section className={styles.relatedSection}>
                         <div className="container">
-                            <h2 className={styles.relatedTitle}>Related Articles</h2>
+                            <div className={styles.relatedHeader}>
+                                <h2 className={styles.relatedTitle}>Related Articles</h2>
+                                <div className={styles.relatedDivider}></div>
+                            </div>
                             <div className={styles.relatedGrid}>
                                 {relatedArticles.map((relatedArticle) => (
                                     <ArticleCard key={relatedArticle.id} article={relatedArticle} />

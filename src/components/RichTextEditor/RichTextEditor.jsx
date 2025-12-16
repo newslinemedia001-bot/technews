@@ -20,6 +20,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
     const [showLinkModal, setShowLinkModal] = useState(false);
     const [linkUrl, setLinkUrl] = useState('');
     const [linkText, setLinkText] = useState('');
+    const [savedSelection, setSavedSelection] = useState(null);
 
     useEffect(() => {
         if (editorRef.current && value !== editorRef.current.innerHTML) {
@@ -51,16 +52,40 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
 
     const insertLink = useCallback(() => {
         if (linkUrl) {
+            // Restore selection
+            if (savedSelection) {
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(savedSelection);
+            }
+
             const text = linkText || linkUrl;
             const html = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
             document.execCommand('insertHTML', false, html);
             setShowLinkModal(false);
             setLinkUrl('');
             setLinkText('');
+            setSavedSelection(null);
             editorRef.current?.focus();
             handleInput();
         }
-    }, [linkUrl, linkText, handleInput]);
+    }, [linkUrl, linkText, savedSelection, handleInput]);
+
+    const openLinkModal = useCallback(() => {
+        // Save current selection
+        const sel = window.getSelection();
+        if (sel.rangeCount > 0) {
+            const range = sel.getRangeAt(0);
+            setSavedSelection(range.cloneRange());
+            
+            // Get selected text if any
+            const selectedText = sel.toString();
+            if (selectedText) {
+                setLinkText(selectedText);
+            }
+        }
+        setShowLinkModal(true);
+    }, []);
 
     const insertImage = useCallback((url, alt = '') => {
         const html = `<img src="${url}" alt="${alt}" style="max-width: 100%; height: auto;" />`;
@@ -75,6 +100,30 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
             insertImage(url, alt);
         }
     }, [insertImage]);
+
+    const insertYouTubeVideo = useCallback(() => {
+        const url = prompt('Enter YouTube URL:');
+        if (url) {
+            // Extract video ID from various YouTube URL formats
+            const videoIdMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+            if (videoIdMatch && videoIdMatch[1]) {
+                const videoId = videoIdMatch[1];
+                // Create a wrapper with delete button and paragraphs before/after
+                const html = `
+                    <p><br></p>
+                    <div contenteditable="false" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 1.5rem 0; border-radius: 8px; background: #f0f0f0;">
+                        <button onclick="this.parentElement.remove()" style="position: absolute; top: 10px; right: 10px; z-index: 10; background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; font-size: 12px; font-weight: 600;">Delete Video</button>
+                        <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;"></iframe>
+                    </div>
+                    <p><br></p>
+                `;
+                document.execCommand('insertHTML', false, html);
+                handleInput();
+            } else {
+                alert('Invalid YouTube URL');
+            }
+        }
+    }, [handleInput]);
 
     const insertBlockquote = useCallback(() => {
         formatBlock('blockquote');
@@ -155,12 +204,17 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
                     <ToolbarButton
                         icon={<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>}
                         title="Insert Link"
-                        onClick={() => setShowLinkModal(true)}
+                        onClick={openLinkModal}
                     />
                     <ToolbarButton
                         icon={<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>}
                         title="Insert Image"
                         onClick={handleImageUpload}
+                    />
+                    <ToolbarButton
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>}
+                        title="Insert YouTube Video"
+                        onClick={insertYouTubeVideo}
                     />
                     <ToolbarButton
                         icon={<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z" /><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" /></svg>}
