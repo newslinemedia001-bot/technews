@@ -21,15 +21,27 @@ export default function ContactPage() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const { subject, message, name, email } = formData;
 
-        // Construct mailto link
-        const mailtoLink = `mailto:newslinedigitaltv@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)}`;
+        // Construct mailto link with proper formatting
+        const emailBody = `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`;
+        const mailtoLink = `mailto:newslinedigitaltv@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
 
-        // Open email client
-        window.location.href = mailtoLink;
+        // Try to open email client
+        const emailWindow = window.open(mailtoLink, '_self');
+        
+        // Fallback: Copy to clipboard if email client doesn't open
+        setTimeout(async () => {
+            try {
+                const emailText = `To: newslinedigitaltv@gmail.com\nSubject: ${subject}\n\n${emailBody}`;
+                await navigator.clipboard.writeText(emailText);
+                alert('Email details copied to clipboard!\n\nIf your email client didn\'t open, you can:\n1. Open Gmail or your email app\n2. Paste the copied details (Ctrl+V)\n3. Send the email');
+            } catch (err) {
+                alert('Please send an email to:\nnewslinedigitaltv@gmail.com\n\nSubject: ' + subject + '\n\nMessage:\n' + emailBody);
+            }
+        }, 1000);
     };
 
     return (

@@ -91,14 +91,16 @@
     padding: 1rem 2.5rem;
     font-size: 1rem;
     font-weight: 700;
-    background-color: var(--color-accent);
-    color: var(--color-white);
+    background-color: var(--color-white);
+    color: var(--color-primary);
     border-radius: var(--radius-md);
     transition: all var(--transition-fast);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .ctaBtn:hover {
-    background-color: var(--color-accent-dark);
-    color: var(--color-white);
+    background-color: #f0f0f0;
+    color: var(--color-primary-dark);
     transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
