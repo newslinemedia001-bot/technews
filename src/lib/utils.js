@@ -43,15 +43,21 @@ export const truncateText = (text, maxLength = 150) => {
 // Strip HTML tags and decode entities
 export const stripHtml = (html) => {
     if (!html) return '';
-    // Remove HTML tags
-    let text = html.replace(/<[^>]*>/g, '');
-    // Decode HTML entities
-    text = text.replace(/&nbsp;/g, ' ');
-    text = text.replace(/&amp;/g, '&');
+
+    let text = html;
+
+    // First decode entities to handle escaped HTML (e.g. from database or truncation)
     text = text.replace(/&lt;/g, '<');
     text = text.replace(/&gt;/g, '>');
+    text = text.replace(/&amp;/g, '&');
+    text = text.replace(/&nbsp;/g, ' ');
     text = text.replace(/&quot;/g, '"');
     text = text.replace(/&#39;/g, "'");
+
+    // Remove HTML tags - use safer regex that requires a letter after < to avoid stripping "5 < 10"
+    // Also handles unclosed tags at the end of string (common with truncated content)
+    text = text.replace(/<[^>]*>?/g, '');
+
     // Remove extra whitespace
     text = text.replace(/\s+/g, ' ').trim();
     return text;

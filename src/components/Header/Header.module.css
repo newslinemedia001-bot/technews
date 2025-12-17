@@ -2,7 +2,7 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-    background-color: #0f121a;
+    background-color: #090b10;
     box-shadow: var(--shadow-sm);
 }
 
@@ -13,7 +13,7 @@
 /* Main Header */
 .mainHeader {
     padding: 0.75rem 0;
-    background-color: #0f121a;
+    background-color: #090b10;
 }
 
 [data-theme="light"] .mainHeader {
@@ -38,7 +38,6 @@
     transform: translateX(-50%);
     text-decoration: none;
     pointer-events: auto;
-    z-index: 10;
 }
 
 .logoImage {
@@ -62,27 +61,27 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     position: relative;
-    text-shadow: 
+    text-shadow:
         1px 1px 0px rgba(37, 99, 235, 0.8),
         2px 2px 0px rgba(29, 78, 216, 0.6),
         3px 3px 0px rgba(30, 64, 175, 0.4),
         4px 4px 0px rgba(30, 58, 138, 0.3),
         5px 5px 10px rgba(0, 0, 0, 0.5);
-    filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.6)) 
-            drop-shadow(0 0 20px rgba(96, 165, 250, 0.4));
+    filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.6)) drop-shadow(0 0 20px rgba(96, 165, 250, 0.4));
     will-change: filter;
     backface-visibility: hidden;
     animation: glow 3s ease-in-out infinite;
 }
 
 @keyframes glow {
-    0%, 100% {
-        filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.6)) 
-                drop-shadow(0 0 20px rgba(96, 165, 250, 0.4));
+
+    0%,
+    100% {
+        filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.6)) drop-shadow(0 0 20px rgba(96, 165, 250, 0.4));
     }
+
     50% {
-        filter: drop-shadow(0 2px 12px rgba(59, 130, 246, 0.8)) 
-                drop-shadow(0 0 30px rgba(96, 165, 250, 0.6));
+        filter: drop-shadow(0 2px 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 30px rgba(96, 165, 250, 0.6));
     }
 }
 
@@ -91,7 +90,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 
+    text-shadow:
         1px 1px 0px rgba(37, 99, 235, 0.5),
         2px 2px 0px rgba(30, 64, 175, 0.3),
         3px 3px 0px rgba(30, 58, 138, 0.2),
@@ -104,7 +103,7 @@
     color: #f8fafc;
     font-weight: 900;
     position: relative;
-    text-shadow: 
+    text-shadow:
         1px 1px 0px rgba(0, 0, 0, 0.5),
         2px 2px 0px rgba(0, 0, 0, 0.4),
         3px 3px 0px rgba(0, 0, 0, 0.3),
@@ -115,7 +114,7 @@
 
 [data-theme="light"] .logoAccent {
     color: #0f172a;
-    text-shadow: 
+    text-shadow:
         1px 1px 0px rgba(255, 255, 255, 0.8),
         2px 2px 0px rgba(0, 0, 0, 0.15),
         3px 3px 0px rgba(0, 0, 0, 0.1),
@@ -128,8 +127,6 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    flex: 1;
-    min-width: 0;
 }
 
 /* Right Section */
@@ -137,9 +134,7 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    flex: 1;
-    justify-content: flex-end;
-    min-width: 0;
+    margin-left: auto;
 }
 
 /* Search Toggle */
@@ -169,7 +164,7 @@
     top: 100%;
     left: 0;
     right: 0;
-    background-color: #0f121a;
+    background-color: #090b10;
     padding: 1rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
@@ -188,6 +183,7 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -259,7 +255,7 @@
     padding: 0.5rem 1.25rem;
     font-size: 0.875rem;
     font-weight: 600;
-    background-color: #13376a;
+    background-color: #0446be;
     color: var(--color-white);
     border: none;
     border-radius: var(--radius-md);
@@ -268,7 +264,7 @@
 }
 
 .signInBtn:hover {
-    background-color: #1a4580;
+    background-color: #033691;
     transform: translateY(-1px);
 }
 
@@ -328,7 +324,7 @@
 
 /* Navigation */
 .nav {
-    background-color: #0f121a;
+    background-color: #090b10;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -455,8 +451,13 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Mobile Sidebar Menu */
@@ -466,7 +467,7 @@
     left: -100%;
     width: 280px;
     height: 100vh;
-    background-color: #0f121a;
+    background-color: #090b10;
     transition: left var(--transition-normal);
     overflow-y: auto;
     z-index: 2000;

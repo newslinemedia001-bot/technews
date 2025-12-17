@@ -43,7 +43,7 @@ export default function HomePage() {
         ]);
 
         setTrendingArticles(trending);
-        
+
         const catArticles = {
           technology: categoryResults[0].articles,
           business: categoryResults[1].articles,
@@ -81,20 +81,24 @@ export default function HomePage() {
       <section className={styles.heroSection}>
         <div className="container">
           <div className={styles.heroGrid}>
-            <div className={styles.heroSide}>
+            <div className={`${styles.heroSide} ${styles.technologySide}`}>
               <h3 className={styles.heroSideTitle}>Technology</h3>
-              {[...Array(4)].map((_, i) => (
-                <ArticleCardSkeleton key={i} variant="minimal" />
-              ))}
+              <div className={styles.heroSideContent}>
+                {[...Array(4)].map((_, i) => (
+                  <ArticleCardSkeleton key={i} variant="minimal" />
+                ))}
+              </div>
             </div>
             <div className={styles.heroMain}>
               <ArticleCardSkeleton variant="featured" />
             </div>
-            <div className={styles.heroSide}>
+            <div className={`${styles.heroSide} ${styles.videosSide}`}>
               <h3 className={styles.heroSideTitle}>Videos</h3>
-              {[...Array(4)].map((_, i) => (
-                <ArticleCardSkeleton key={i} variant="minimal" />
-              ))}
+              <div className={styles.heroSideContent}>
+                {[...Array(4)].map((_, i) => (
+                  <ArticleCardSkeleton key={i} variant="minimal" />
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -123,24 +127,24 @@ export default function HomePage() {
                   {[...Array(5)].map((_, i) => (
                     <div key={i} className={styles.trendingItem}>
                       <span className={styles.trendingNumber}>{i + 1}</span>
-                      <div style={{ 
-                        width: '60px', 
-                        height: '60px', 
-                        background: 'var(--bg-tertiary)', 
+                      <div style={{
+                        width: '60px',
+                        height: '60px',
+                        background: 'var(--bg-tertiary)',
                         borderRadius: 'var(--radius-sm)',
                         flexShrink: 0
                       }}></div>
                       <div className={styles.trendingContent}>
-                        <div style={{ 
-                          height: '14px', 
-                          background: 'var(--bg-tertiary)', 
+                        <div style={{
+                          height: '14px',
+                          background: 'var(--bg-tertiary)',
                           borderRadius: 'var(--radius-sm)',
                           marginBottom: '4px',
                           width: i % 2 === 0 ? '100%' : '80%'
                         }}></div>
-                        <div style={{ 
-                          height: '11px', 
-                          background: 'var(--bg-tertiary)', 
+                        <div style={{
+                          height: '11px',
+                          background: 'var(--bg-tertiary)',
                           borderRadius: 'var(--radius-sm)',
                           width: '60px'
                         }}></div>
@@ -184,17 +188,19 @@ export default function HomePage() {
           {hasArticles ? (
             <div className={styles.heroGrid}>
               {/* Technology Articles - Left Side */}
-              <div className={styles.heroSide}>
+              <div className={`${styles.heroSide} ${styles.technologySide}`}>
                 <h3 className={styles.heroSideTitle}>Technology</h3>
-                {categoryArticles['technology']?.slice(0, 3).map((article) => (
-                  <ArticleCard
-                    key={article.id}
-                    article={article}
-                    variant="minimal"
-                    showMeta={true}
-                    showMinimalImage={false}
-                  />
-                ))}
+                <div className={styles.heroSideContent}>
+                  {categoryArticles['technology']?.slice(0, 4).map((article) => (
+                    <ArticleCard
+                      key={article.id}
+                      article={article}
+                      variant="minimal"
+                      showMeta={true}
+                      showMinimalImage={false}
+                    />
+                  ))}
+                </div>
               </div>
 
               {/* Featured Article - Center */}
@@ -205,17 +211,20 @@ export default function HomePage() {
               )}
 
               {/* Videos - Right Side */}
-              <div className={styles.heroSide}>
+              <div className={`${styles.heroSide} ${styles.videosSide}`}>
                 <h3 className={styles.heroSideTitle}>Videos</h3>
-                {categoryArticles['videos']?.slice(0, 3).map((article) => (
-                  <ArticleCard
-                    key={article.id}
-                    article={article}
-                    variant="minimal"
-                    showMeta={true}
-                    showMinimalImage={true}
-                  />
-                ))}
+                <div className={styles.heroSideContent}>
+                  {categoryArticles['videos']?.slice(0, 4).map((article) => (
+                    <ArticleCard
+                      key={article.id}
+                      article={article}
+                      variant="minimal"
+                      showMeta={true}
+                      showMinimalImage={true}
+                      titleLineClamp={2}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           ) : (

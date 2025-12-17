@@ -287,7 +287,14 @@
     font-size: 0.875rem;
     font-weight: 600;
     line-height: 1.5;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: inherit;
+    /* Allow parent to control color */
 }
 
 .minimalTitle a {
@@ -313,6 +320,7 @@
         padding: 1.5rem;
     }
 }
+
 /* Vide
 o Play Button */
 .playButton {

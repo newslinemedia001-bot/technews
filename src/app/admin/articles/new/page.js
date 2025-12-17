@@ -23,6 +23,7 @@ export default function NewArticle() {
 
     // Article data
     const [title, setTitle] = useState('');
+    const [summary, setSummary] = useState('');
     const [content, setContent] = useState('');
     const [category, setCategory] = useState('');
     const [tags, setTags] = useState('');
@@ -98,7 +99,7 @@ export default function NewArticle() {
     // Handle YouTube URL change
     const handleYouTubeUrlChange = useCallback((url) => {
         setYoutubeUrl(url);
-        
+
         if (isYouTubeUrl(url)) {
             const videoId = extractYouTubeId(url);
             if (videoId) {
@@ -129,6 +130,7 @@ export default function NewArticle() {
         try {
             const articleData = {
                 title,
+                summary,
                 content,
                 category: category, // Just the main category now
                 tags: tags.split(',').map(t => t.trim()).filter(Boolean),
@@ -216,6 +218,17 @@ export default function NewArticle() {
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 placeholder="Enter article title..."
+                            />
+                        </div>
+
+                        {/* Summary */}
+                        <div className={styles.editorWrapper}>
+                            <label className={styles.label}>Summary</label>
+                            <textarea
+                                className={styles.textarea}
+                                value={summary}
+                                onChange={(e) => setSummary(e.target.value)}
+                                placeholder="Brief summary of the article (appears below title)..."
                             />
                         </div>
 

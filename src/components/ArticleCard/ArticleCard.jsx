@@ -13,7 +13,8 @@ export default function ArticleCard({
     showCategory = true,
     showMeta = true,
     imageHeight = 200,
-    showMinimalImage = false // Only show image in minimal variant if true
+    showMinimalImage = false, // Only show image in minimal variant if true
+    titleLineClamp = null // Optional line clamp for titles
 }) {
     if (!article) return null;
 
@@ -65,18 +66,18 @@ export default function ArticleCard({
                         <h2 className={styles.featuredTitle}>
                             {article.title}
                         </h2>
-                    {showExcerpt && excerpt && (
-                        <p className={styles.featuredExcerpt}>{excerpt}</p>
-                    )}
-                    {showMeta && (
-                        <div className={styles.meta}>
-                            <span className={styles.author}>{article.author || 'TechNews'}</span>
-                            <span className={styles.separator}>•</span>
-                            <span>{formatRelativeDate(article.createdAt)}</span>
-                            <span className={styles.separator}>•</span>
-                            <span>{readingTime}</span>
-                        </div>
-                    )}
+                        {showExcerpt && excerpt && (
+                            <p className={styles.featuredExcerpt}>{excerpt}</p>
+                        )}
+                        {showMeta && (
+                            <div className={styles.meta}>
+                                <span className={styles.author}>{article.author || 'TechNews'}</span>
+                                <span className={styles.separator}>•</span>
+                                <span>{formatRelativeDate(article.createdAt)}</span>
+                                <span className={styles.separator}>•</span>
+                                <span>{readingTime}</span>
+                            </div>
+                        )}
                     </div>
                 </article>
             </Link>
@@ -149,7 +150,9 @@ export default function ArticleCard({
                     </Link>
                 )}
                 <div className={styles.minimalContent}>
-                    <h3 className={styles.minimalTitle}>
+                    <h3
+                        className={styles.minimalTitle}
+                    >
                         <Link href={articleUrl}>{article.title}</Link>
                     </h3>
                     {showMeta && (

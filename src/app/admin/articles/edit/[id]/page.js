@@ -26,6 +26,7 @@ export default function EditArticle({ params }) {
 
     // Article data
     const [title, setTitle] = useState('');
+    const [summary, setSummary] = useState('');
     const [content, setContent] = useState('');
     const [category, setCategory] = useState('');
     const [tags, setTags] = useState('');
@@ -65,6 +66,7 @@ export default function EditArticle({ params }) {
                 // Populate form
                 setTitle(article.title);
                 setOriginalTitle(article.title);
+                setSummary(article.summary || '');
                 setContent(article.content || '');
                 setCategory(article.subcategory ? `${article.category}/${article.subcategory}` : article.category);
                 setTags(article.tags?.join(', ') || '');
@@ -124,6 +126,7 @@ export default function EditArticle({ params }) {
         try {
             const articleData = {
                 title,
+                summary,
                 content,
                 category: category.split('/')[0],
                 subcategory: category.includes('/') ? category.split('/')[1] : null,
@@ -207,6 +210,17 @@ export default function EditArticle({ params }) {
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 placeholder="Enter article title..."
+                            />
+                        </div>
+
+                        {/* Summary */}
+                        <div className={styles.editorWrapper}>
+                            <label className={styles.label}>Summary</label>
+                            <textarea
+                                className={styles.textarea}
+                                value={summary}
+                                onChange={(e) => setSummary(e.target.value)}
+                                placeholder="Brief summary of the article (appears below title)..."
                             />
                         </div>
 
