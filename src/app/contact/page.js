@@ -31,7 +31,7 @@ export default function ContactPage() {
 
         // Try to open email client
         const emailWindow = window.open(mailtoLink, '_self');
-        
+
         // Fallback: Copy to clipboard if email client doesn't open
         setTimeout(async () => {
             try {
@@ -88,7 +88,7 @@ export default function ContactPage() {
                                     </div>
                                     <div className={contactStyles.infoContent}>
                                         <h3>Call or WhatsApp</h3>
-                                        <p><a href="tel:+254742577038">0742 577 038</a></p>
+                                        <p><a href="tel:+254742577038">+254 742 577 038</a></p>
                                     </div>
                                 </div>
 

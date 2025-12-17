@@ -12,6 +12,7 @@ import styles from './ArticleContent.module.css';
 export default function ArticleContent({ initialArticle, slug }) {
     const [article, setArticle] = useState(initialArticle);
     const [relatedArticles, setRelatedArticles] = useState([]);
+    const [latestNews, setLatestNews] = useState([]);
     const [readAlsoArticles, setReadAlsoArticles] = useState([]);
     const [loading, setLoading] = useState(!initialArticle);
     const [error, setError] = useState(null);
@@ -77,9 +78,16 @@ export default function ArticleContent({ initialArticle, slug }) {
                     setRelatedArticles(related.slice(0, 4));
 
                     // Fetch "Read Also" articles (6 total: 3 inline + 3 bottom)
-                    const readAlsoResult = await getLatestArticles(8);
+                    const readAlsoResult = await getLatestArticles(12); // Increased to get enough for latest news too
                     const readAlso = readAlsoResult.articles.filter(a => a.id !== article.id).slice(0, 6);
                     setReadAlsoArticles(readAlso);
+
+                    // Set Latest News (distinct from related, usually the most recent global)
+                    // We can take from the same result or fetch new if we want specific ordering
+                    const latestForBottom = readAlsoResult.articles
+                        .filter(a => a.id !== article.id && !related.find(r => r.id === a.id) && !readAlso.find(r => r.id === a.id))
+                        .slice(0, 4);
+                    setLatestNews(latestForBottom);
                 } catch (err) {
                     console.error('Error loading related articles:', err);
                 }
@@ -481,6 +489,23 @@ export default function ArticleContent({ initialArticle, slug }) {
                     </section>
                 )}
             </article>
+
+            {/* Latest News Section */}
+            {latestNews.length > 0 && (
+                <section className={styles.relatedSection} style={{ paddingTop: '0' }}>
+                    <div className="container">
+                        <div className={styles.relatedHeader}>
+                            <h2 className={styles.relatedTitle}>Latest News</h2>
+                            <div className={styles.relatedDivider}></div>
+                        </div>
+                        <div className={styles.relatedGrid}>
+                            {latestNews.map((newsArticle) => (
+                                <ArticleCard key={newsArticle.id} article={newsArticle} />
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
         </>
     );
 }

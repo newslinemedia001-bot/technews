@@ -54,8 +54,11 @@ export const stripHtml = (html) => {
     text = text.replace(/&quot;/g, '"');
     text = text.replace(/&#39;/g, "'");
 
-    // Remove HTML tags - use safer regex that requires a letter after < to avoid stripping "5 < 10"
-    // Also handles unclosed tags at the end of string (common with truncated content)
+    // Remove script and style tags including their content
+    text = text.replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '');
+    text = text.replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, '');
+
+    // Remove HTML tags
     text = text.replace(/<[^>]*>?/g, '');
 
     // Remove extra whitespace

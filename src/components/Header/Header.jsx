@@ -43,16 +43,16 @@ function CategoryDropdown({ categoryId, categorySlug, onTriggerLoad }) {
                         <div key={i} className={styles.dropdownArticle}>
                             <div className={styles.dropdownArticleImage} style={{ background: 'var(--bg-tertiary)' }}></div>
                             <div className={styles.dropdownArticleContent}>
-                                <div style={{ 
-                                    height: '14px', 
-                                    background: 'var(--bg-tertiary)', 
+                                <div style={{
+                                    height: '14px',
+                                    background: 'var(--bg-tertiary)',
                                     borderRadius: '4px',
                                     marginBottom: '8px',
                                     width: i % 2 === 0 ? '100%' : '85%'
                                 }}></div>
-                                <div style={{ 
-                                    height: '12px', 
-                                    background: 'var(--bg-tertiary)', 
+                                <div style={{
+                                    height: '12px',
+                                    background: 'var(--bg-tertiary)',
                                     borderRadius: '4px',
                                     width: '60%'
                                 }}></div>
@@ -127,7 +127,7 @@ export default function Header() {
                 setSearchResults([]);
                 return;
             }
-            
+
             setSearchLoading(true);
             try {
                 const results = await searchArticles(searchQuery, 5);
@@ -176,16 +176,7 @@ export default function Header() {
                             <line x1="6" y1="6" x2="18" y2="18" />
                         </svg>
                     </button>
-                    <button
-                        className={styles.searchToggle}
-                        onClick={() => setIsSearchOpen(!isSearchOpen)}
-                        aria-label="Search"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="11" cy="11" r="8" />
-                            <path d="m21 21-4.3-4.3" />
-                        </svg>
-                    </button>
+
                 </div>
                 <ul className={styles.mobileMenuList}>
                     <li className={styles.mobileMenuItem}>
@@ -223,7 +214,7 @@ export default function Header() {
                             </button>
 
                             {/* Search Icon Only */}
-                            <button 
+                            <button
                                 className={styles.searchToggle}
                                 onClick={() => setIsSearchOpen(!isSearchOpen)}
                                 aria-label="Search"
@@ -262,7 +253,7 @@ export default function Header() {
                                         </svg>
                                     </button>
                                 </form>
-                                
+
                                 {/* Live Search Results */}
                                 {searchQuery.length >= 2 && (
                                     <div className={styles.searchResults}>
@@ -341,7 +332,7 @@ export default function Header() {
                             </button>
 
                             {/* Sign In Button */}
-                            <button 
+                            <button
                                 className={styles.signInBtn}
                                 onClick={() => window.location.href = '/admin'}
                             >
@@ -362,10 +353,10 @@ export default function Header() {
                         {categories.map((category) => {
                             const loadRef = { current: null };
                             let prefetchTimer = null;
-                            
+
                             return (
-                                <li 
-                                    key={category.id} 
+                                <li
+                                    key={category.id}
                                     className={styles.navItem}
                                     onMouseEnter={() => {
                                         // Start loading immediately on hover
@@ -379,8 +370,8 @@ export default function Header() {
                                     <Link href={`/category/${category.slug}`} className={styles.navLink}>
                                         {category.name}
                                     </Link>
-                                    <CategoryDropdown 
-                                        categoryId={category.id} 
+                                    <CategoryDropdown
+                                        categoryId={category.id}
                                         categorySlug={category.slug}
                                         onTriggerLoad={loadRef}
                                     />

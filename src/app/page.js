@@ -7,7 +7,9 @@ import ArticleCard from '@/components/ArticleCard';
 import ArticleCardSkeleton from '@/components/ArticleCard/ArticleCardSkeleton';
 import { getLatestArticles, getFeaturedArticles, getTrendingArticles, getArticlesByCategory } from '@/lib/articles';
 import { subscribeToNewsletter } from '@/lib/subscribers';
+
 import { categories } from '@/lib/categories';
+import WeatherWidget from '@/components/WeatherWidget';
 import styles from './page.module.css';
 
 export default function HomePage() {
@@ -451,6 +453,11 @@ export default function HomePage() {
                     {newsletterStatus}
                   </p>
                 )}
+              </div>
+
+              {/* Weather Widget */}
+              <div className={styles.widget} style={{ background: 'transparent', padding: 0, boxShadow: 'none' }}>
+                <WeatherWidget />
               </div>
             </aside>
           </div>
