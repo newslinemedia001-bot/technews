@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getCurrentAdmin } from '@/lib/auth';
 import { incrementViews, getLatestArticles } from '@/lib/articles';
 import { getCategoryById } from '@/lib/categories';
 import { formatArticleDate, calculateReadingTime } from '@/lib/utils';
@@ -49,10 +50,30 @@ export default function ArticleContent({ initialArticle, slug }) {
     // Phase 2: Load related content & increment views
     useEffect(() => {
         if (article) {
-            // Increment views (non-blocking)
-            incrementViews(article.id).catch(err =>
-                console.error('Error incrementing views:', err)
-            );
+            // Handle view counting
+            const handleViewCount = async () => {
+                try {
+                    // Check if user is admin
+                    const admin = await getCurrentAdmin();
+                    if (admin) {
+                        // Don't count admin views
+                        return;
+                    }
+
+                    // Increment views (once per session per article)
+                    const viewedKey = `viewed_article_${article.id}`;
+                    const hasViewed = sessionStorage.getItem(viewedKey);
+
+                    if (!hasViewed) {
+                        await incrementViews(article.id);
+                        sessionStorage.setItem(viewedKey, 'true');
+                    }
+                } catch (err) {
+                    console.error('Error handling view count:', err);
+                }
+            };
+
+            handleViewCount();
 
             // Fetch related content
             const fetchRelated = async () => {

@@ -13,7 +13,8 @@ import {
     limit,
     startAfter,
     serverTimestamp,
-    Timestamp
+    Timestamp,
+    increment
 } from 'firebase/firestore';
 import slugify from 'slugify';
 
@@ -259,15 +260,13 @@ export const getTrendingArticles = async (limitCount = 10) => {
     });
 };
 
-// Increment article views
+// Increment article views (atomic)
 export const incrementViews = async (articleId) => {
     const docRef = doc(db, ARTICLES_COLLECTION, articleId);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-        const currentViews = docSnap.data().views || 0;
-        await updateDoc(docRef, { views: currentViews + 1 });
-    }
+    // Use Firestore atomic increment
+    await updateDoc(docRef, {
+        views: increment(1)
+    });
 };
 
 // Get all articles (for admin)
@@ -296,9 +295,9 @@ export const getAllArticles = async (statusFilter = null, limitCount = 50) => {
 // Search articles - improved client-side search
 export const searchArticles = async (searchTerm, limitCount = 20) => {
     if (!searchTerm || searchTerm.trim().length < 2) return [];
-    
+
     const searchLower = searchTerm.toLowerCase().trim();
-    
+
     // Get all published articles (with caching this is fast)
     const q = query(
         collection(db, ARTICLES_COLLECTION),
@@ -308,7 +307,7 @@ export const searchArticles = async (searchTerm, limitCount = 20) => {
     );
 
     const snapshot = await getDocs(q);
-    
+
     // Client-side filtering for better search
     const results = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
@@ -319,7 +318,7 @@ export const searchArticles = async (searchTerm, limitCount = 20) => {
             return titleMatch || excerptMatch || contentMatch;
         })
         .slice(0, limitCount);
-    
+
     return results;
 };
 

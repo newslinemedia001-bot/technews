@@ -95,12 +95,12 @@ export default function Header() {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
-    const [theme, setTheme] = useState('dark');
+    const [theme, setTheme] = useState('light');
     const searchRef = useRef(null);
 
     useEffect(() => {
         // Initialize theme - default to dark
-        const savedTheme = localStorage.getItem('theme') || 'dark';
+        const savedTheme = localStorage.getItem('theme') || 'light';
         setTheme(savedTheme);
         document.documentElement.setAttribute('data-theme', savedTheme);
 

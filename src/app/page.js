@@ -168,8 +168,31 @@ export default function HomePage() {
 
   const hasArticles = (Array.isArray(latestArticles) && latestArticles.length > 0) || (Array.isArray(featuredArticles) && featuredArticles.length > 0);
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsMediaOrganization',
+    name: 'TechNews',
+    url: 'https://technews.co.ke',
+    logo: 'https://technews.co.ke/logo.png',
+    sameAs: [
+      'https://facebook.com/technews',
+      'https://twitter.com/technews',
+      'https://youtube.com/technews'
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+254-742-577-038',
+      contactType: 'customer service',
+      areaServed: 'KE'
+    }
+  };
+
   return (
     <div className={styles.homepage}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Breaking News Ticker */}
       <div className={styles.breakingNews}>
         <div className="container">
@@ -200,6 +223,7 @@ export default function HomePage() {
                       variant="minimal"
                       showMeta={true}
                       showMinimalImage={false}
+                      lightText={true} // Technology side has blue background
                     />
                   ))}
                 </div>

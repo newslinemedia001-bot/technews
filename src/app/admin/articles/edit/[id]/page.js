@@ -7,7 +7,8 @@ import Image from 'next/image';
 import { getCurrentAdmin } from '@/lib/auth';
 import { getArticleById, updateArticle } from '@/lib/articles';
 import { uploadToCloudinary } from '@/lib/cloudinary';
-import { getAllCategoriesFlat } from '@/lib/categories';
+import { getAllCategoriesFlat, getMainCategoriesOnly } from '@/lib/categories';
+import { extractYouTubeId, getYouTubeThumbnail, isYouTubeUrl } from '@/lib/youtube';
 import RichTextEditor from '@/components/RichTextEditor';
 import InvitusSEO from '@/components/InvitusSEO';
 import slugify from 'slugify';
@@ -35,6 +36,7 @@ export default function EditArticle({ params }) {
     const [featuredImageCaption, setFeaturedImageCaption] = useState('');
     const [featured, setFeatured] = useState(false);
     const [status, setStatus] = useState('draft');
+    const [youtubeUrl, setYoutubeUrl] = useState('');
 
     // SEO data
     const [focusKeyword, setFocusKeyword] = useState('');
@@ -42,7 +44,7 @@ export default function EditArticle({ params }) {
     const [metaDescription, setMetaDescription] = useState('');
     const [slug, setSlug] = useState('');
 
-    const categories = getAllCategoriesFlat();
+    const categories = getMainCategoriesOnly();
 
     useEffect(() => {
         const init = async () => {
@@ -68,7 +70,7 @@ export default function EditArticle({ params }) {
                 setOriginalTitle(article.title);
                 setSummary(article.summary || '');
                 setContent(article.content || '');
-                setCategory(article.subcategory ? `${article.category}/${article.subcategory}` : article.category);
+                setCategory(article.category);
                 setTags(article.tags?.join(', ') || '');
                 setAuthor(article.author || '');
                 setFeaturedImage(article.featuredImage || '');
@@ -79,6 +81,7 @@ export default function EditArticle({ params }) {
                 setSeoTitle(article.seoTitle || '');
                 setMetaDescription(article.metaDescription || '');
                 setSlug(article.slug || '');
+                setYoutubeUrl(article.youtubeUrl || (article.videoId ? `https://www.youtube.com/watch?v=${article.videoId}` : ''));
             } catch (error) {
                 console.error('Error:', error);
                 router.push('/admin');
@@ -106,6 +109,22 @@ export default function EditArticle({ params }) {
         }
     }, []);
 
+    // Handle YouTube URL change
+    const handleYouTubeUrlChange = useCallback((url) => {
+        setYoutubeUrl(url);
+
+        if (isYouTubeUrl(url)) {
+            const videoId = extractYouTubeId(url);
+            if (videoId) {
+                // Auto-set thumbnail as featured image if not already set
+                if (!featuredImage) {
+                    const thumbnail = getYouTubeThumbnail(videoId);
+                    setFeaturedImage(thumbnail);
+                }
+            }
+        }
+    }, [featuredImage]);
+
     const handleSave = async (publishStatus = status) => {
         if (!title) {
             alert('Please enter a title');
@@ -128,8 +147,7 @@ export default function EditArticle({ params }) {
                 title,
                 summary,
                 content,
-                category: category.split('/')[0],
-                subcategory: category.includes('/') ? category.split('/')[1] : null,
+                category: category,
                 tags: tags.split(',').map(t => t.trim()).filter(Boolean),
                 author,
                 featuredImage,
@@ -140,7 +158,9 @@ export default function EditArticle({ params }) {
                 seoTitle: seoTitle || title,
                 metaDescription,
                 slug,
-                titleChanged: title !== originalTitle
+                titleChanged: title !== originalTitle,
+                youtubeUrl: youtubeUrl || null,
+                videoId: youtubeUrl ? extractYouTubeId(youtubeUrl) : null
             };
 
             await updateArticle(id, articleData);
@@ -346,6 +366,37 @@ export default function EditArticle({ params }) {
                                 <small className={styles.helper}>Separate tags with commas</small>
                             </div>
                         </div>
+
+                        {/* YouTube Video - Only show for videos category */}
+                        {category === 'videos' && (
+                            <div className={styles.panel}>
+                                <h3 className={styles.panelTitle}>YouTube Video</h3>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>YouTube URL *</label>
+                                    <input
+                                        type="text"
+                                        className={styles.input}
+                                        value={youtubeUrl}
+                                        onChange={(e) => handleYouTubeUrlChange(e.target.value)}
+                                        placeholder="https://www.youtube.com/watch?v=..."
+                                    />
+                                    <small className={styles.helper}>Paste YouTube link - thumbnail will auto-set as featured image</small>
+                                </div>
+                                {youtubeUrl && extractYouTubeId(youtubeUrl) && (
+                                    <div className={styles.videoPreview}>
+                                        <iframe
+                                            width="100%"
+                                            height="200"
+                                            src={`https://www.youtube.com/embed/${extractYouTubeId(youtubeUrl)}`}
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                            style={{ borderRadius: 'var(--radius-md)' }}
+                                        ></iframe>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         {/* Author & Options */}
                         <div className={styles.panel}>

@@ -69,5 +69,39 @@ export default async function ArticlePage({ params }) {
     const article = await getArticle(slug);
     const serializedArticle = serializeArticle(article);
 
-    return <ArticleContent initialArticle={serializedArticle} slug={slug} />;
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'NewsArticle',
+        headline: article.title,
+        description: article.excerpt || article.summary,
+        image: [article.featuredImage],
+        datePublished: article.createdAt?.toDate?.().toISOString() || new Date(article.createdAt).toISOString(),
+        dateModified: article.updatedAt?.toDate?.().toISOString() || new Date(article.updatedAt || article.createdAt).toISOString(),
+        author: [{
+            '@type': 'Person',
+            name: article.author || 'TechNews',
+        }],
+        publisher: {
+            '@type': 'Organization',
+            name: 'TechNews',
+            logo: {
+                '@type': 'ImageObject',
+                url: 'https://technews.co.ke/logo.png'
+            }
+        },
+        mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `https://technews.co.ke/article/${slug}`
+        }
+    };
+
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <ArticleContent initialArticle={serializedArticle} slug={slug} />
+        </>
+    );
 }

@@ -14,7 +14,8 @@ export default function ArticleCard({
     showMeta = true,
     imageHeight = 200,
     showMinimalImage = false, // Only show image in minimal variant if true
-    titleLineClamp = null // Optional line clamp for titles
+    titleLineClamp = null, // Optional line clamp for titles
+    lightText = false // Force light text for dark backgrounds
 }) {
     if (!article) return null;
 
@@ -152,11 +153,20 @@ export default function ArticleCard({
                 <div className={styles.minimalContent}>
                     <h3
                         className={styles.minimalTitle}
+                        style={lightText ? { color: '#ffffff' } : {}}
                     >
-                        <Link href={articleUrl}>{article.title}</Link>
+                        <Link
+                            href={articleUrl}
+                            style={lightText ? { color: '#ffffff' } : {}}
+                        >
+                            {article.title}
+                        </Link>
                     </h3>
                     {showMeta && (
-                        <div className={styles.metaSmall}>
+                        <div
+                            className={styles.metaSmall}
+                            style={lightText ? { color: 'rgba(255, 255, 255, 0.8)' } : {}}
+                        >
                             <span>{formatRelativeDate(article.createdAt)}</span>
                         </div>
                     )}
