@@ -4,33 +4,51 @@ import { format, formatDistanceToNow, isToday, isYesterday, parseISO } from 'dat
 export const formatDate = (timestamp) => {
     if (!timestamp) return '';
 
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    try {
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        if (isNaN(date.getTime())) return '';
 
-    if (isToday(date)) {
-        return `Today at ${format(date, 'h:mm a')}`;
+        if (isToday(date)) {
+            return `Today at ${format(date, 'h:mm a')}`;
+        }
+
+        if (isYesterday(date)) {
+            return `Yesterday at ${format(date, 'h:mm a')}`;
+        }
+
+        return format(date, 'MMMM d, yyyy');
+    } catch (error) {
+        console.warn('Error formatting date:', error);
+        return '';
     }
-
-    if (isYesterday(date)) {
-        return `Yesterday at ${format(date, 'h:mm a')}`;
-    }
-
-    return format(date, 'MMMM d, yyyy');
 };
 
 // Format date relative (e.g., "2 hours ago")
 export const formatRelativeDate = (timestamp) => {
     if (!timestamp) return '';
 
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return formatDistanceToNow(date, { addSuffix: true });
+    try {
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        if (isNaN(date.getTime())) return '';
+
+        return formatDistanceToNow(date, { addSuffix: true });
+    } catch (error) {
+        return ''; // Fail silently for relative dates
+    }
 };
 
 // Format date for article display
 export const formatArticleDate = (timestamp) => {
     if (!timestamp) return '';
 
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return format(date, 'MMMM d, yyyy | h:mm a');
+    try {
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        if (isNaN(date.getTime())) return '';
+
+        return format(date, 'MMMM d, yyyy | h:mm a');
+    } catch (error) {
+        return '';
+    }
 };
 
 // Truncate text
