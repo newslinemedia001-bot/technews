@@ -1,87 +1,30 @@
-'use client';
-
-import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import ArticleCard from '@/components/ArticleCard';
 import { getArticlesByCategory } from '@/lib/articles';
 import { getCategoryBySlug } from '@/lib/categories';
-import ArticleCard, { ArticleCardSkeleton } from '@/components/ArticleCard';
 import styles from './page.module.css';
 
-export default function CategoryPage({ params }) {
-    const resolvedParams = use(params);
-    const { slug } = resolvedParams;
+export const revalidate = 300; // Revalidate every 5 minutes
 
-    const [articles, setArticles] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [lastDoc, setLastDoc] = useState(null);
-    const [hasMore, setHasMore] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
-
+export async function generateMetadata({ params }) {
+    const { slug } = await params;
     const category = getCategoryBySlug(slug);
 
-    useEffect(() => {
-        const fetchArticles = async () => {
-            if (!category) {
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const result = await getArticlesByCategory(category.id, 12);
-                setArticles(result.articles);
-                setLastDoc(result.lastVisible);
-                setHasMore(result.articles.length === 12);
-            } catch (error) {
-                console.error('Error fetching articles:', error);
-            } finally {
-                setLoading(false);
-            }
+    if (!category) {
+        return {
+            title: 'Category Not Found - TechNews',
         };
-
-        fetchArticles();
-    }, [category]);
-
-    const loadMore = async () => {
-        if (!hasMore || loadingMore || !lastDoc) return;
-
-        setLoadingMore(true);
-        try {
-            const result = await getArticlesByCategory(category.id, 12, lastDoc);
-            setArticles([...articles, ...result.articles]);
-            setLastDoc(result.lastVisible);
-            setHasMore(result.articles.length === 12);
-        } catch (error) {
-            console.error('Error loading more:', error);
-        } finally {
-            setLoadingMore(false);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className={styles.categoryPage}>
-                <header className={styles.header}>
-                    <div className="container">
-                        <nav className={styles.breadcrumb}>
-                            <Link href="/">Home</Link>
-                            <span>/</span>
-                            <span className={styles.current}>{category?.name || 'Loading...'}</span>
-                        </nav>
-                        <h1 className={styles.title}>{category?.name || 'Loading...'}</h1>
-                    </div>
-                </header>
-                <section className={styles.articlesSection}>
-                    <div className="container">
-                        <div className={styles.articlesGrid}>
-                            {[...Array(12)].map((_, i) => (
-                                <ArticleCardSkeleton key={i} />
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            </div>
-        );
     }
+
+    return {
+        title: `${category.name} News - TechNews`,
+        description: `Latest news and updates regarding ${category.name}.`,
+    };
+}
+
+export default async function CategoryPage({ params }) {
+    const { slug } = await params;
+    const category = getCategoryBySlug(slug);
 
     if (!category) {
         return (
@@ -91,6 +34,14 @@ export default function CategoryPage({ params }) {
                 <Link href="/" className={styles.backBtn}>Back to Home</Link>
             </div>
         );
+    }
+
+    let articles = [];
+    try {
+        const result = await getArticlesByCategory(category.id, 24);
+        articles = result.articles;
+    } catch (error) {
+        console.error('Error fetching category articles:', error);
     }
 
     return (
@@ -111,32 +62,11 @@ export default function CategoryPage({ params }) {
             <section className={styles.articlesSection}>
                 <div className="container">
                     {articles.length > 0 ? (
-                        <>
-                            <div className={styles.articlesGrid}>
-                                {articles.map((article) => (
-                                    <ArticleCard key={article.id} article={article} />
-                                ))}
-                            </div>
-
-                            {loadingMore && (
-                                <div className={styles.articlesGrid}>
-                                    {[...Array(4)].map((_, i) => (
-                                        <ArticleCardSkeleton key={i} />
-                                    ))}
-                                </div>
-                            )}
-
-                            {hasMore && !loadingMore && (
-                                <div className={styles.loadMore}>
-                                    <button
-                                        className={styles.loadMoreBtn}
-                                        onClick={loadMore}
-                                    >
-                                        Load More Articles
-                                    </button>
-                                </div>
-                            )}
-                        </>
+                        <div className={styles.articlesGrid}>
+                            {articles.map((article) => (
+                                <ArticleCard key={article.id} article={article} />
+                            ))}
+                        </div>
                     ) : (
                         <div className={styles.emptyState}>
                             <div className={styles.emptyIcon}>
@@ -156,3 +86,4 @@ export default function CategoryPage({ params }) {
         </div>
     );
 }
+
