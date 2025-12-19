@@ -1,96 +1,37 @@
-'use client';
-
-import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import ArticleCard from '@/components/ArticleCard';
 import { getArticlesByCategory } from '@/lib/articles';
-import { getCategoryBySlug, categories } from '@/lib/categories';
-import ArticleCard, { ArticleCardSkeleton } from '@/components/ArticleCard';
+import { categories } from '@/lib/categories';
 import styles from '../page.module.css';
 
-export default function SubcategoryPage({ params }) {
-    const resolvedParams = use(params);
-    const { slug, subslug } = resolvedParams;
+export const revalidate = 300; // Revalidate every 5 minutes
 
-    const [articles, setArticles] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [lastDoc, setLastDoc] = useState(null);
-    const [hasMore, setHasMore] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
+export async function generateMetadata({ params }) {
+    const { slug, subslug } = await params;
+
+    const parentCategory = categories.find(c => c.slug === slug);
+    const subcategory = parentCategory?.subcategories?.find(s => s.slug === subslug);
+
+    if (!subcategory || !parentCategory) {
+        return {
+            title: 'Category Not Found - TechNews',
+        };
+    }
+
+    return {
+        title: `${subcategory.name} - ${parentCategory.name} - TechNews`,
+        description: `Latest ${subcategory.name} news in ${parentCategory.name}.`,
+    };
+}
+
+export default async function SubcategoryPage({ params }) {
+    const { slug, subslug } = await params;
 
     // Find the parent category and subcategory
     const parentCategory = categories.find(c => c.slug === slug);
     const subcategory = parentCategory?.subcategories?.find(s => s.slug === subslug);
 
-    useEffect(() => {
-        const fetchArticles = async () => {
-            if (!subcategory) {
-                setLoading(false);
-                return;
-            }
-
-            try {
-                // Use the full category path for subcategories
-                const categoryId = `${parentCategory.id}/${subcategory.id}`;
-                const result = await getArticlesByCategory(categoryId, 12);
-                setArticles(result.articles);
-                setLastDoc(result.lastVisible);
-                setHasMore(result.articles.length === 12);
-            } catch (error) {
-                console.error('Error fetching articles:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchArticles();
-    }, [subcategory, parentCategory]);
-
-    const loadMore = async () => {
-        if (!hasMore || loadingMore || !lastDoc || !subcategory) return;
-
-        setLoadingMore(true);
-        try {
-            const categoryId = `${parentCategory.id}/${subcategory.id}`;
-            const result = await getArticlesByCategory(categoryId, 12, lastDoc);
-            setArticles([...articles, ...result.articles]);
-            setLastDoc(result.lastVisible);
-            setHasMore(result.articles.length === 12);
-        } catch (error) {
-            console.error('Error loading more:', error);
-        } finally {
-            setLoadingMore(false);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className={styles.categoryPage}>
-                <header className={styles.header}>
-                    <div className="container">
-                        <nav className={styles.breadcrumb}>
-                            <Link href="/">Home</Link>
-                            <span>/</span>
-                            <Link href={`/category/${slug}`}>{parentCategory?.name || 'Loading...'}</Link>
-                            <span>/</span>
-                            <span className={styles.current}>{subcategory?.name || 'Loading...'}</span>
-                        </nav>
-                        <h1 className={styles.title}>{subcategory?.name || 'Loading...'}</h1>
-                    </div>
-                </header>
-                <section className={styles.articlesSection}>
-                    <div className="container">
-                        <div className={styles.articlesGrid}>
-                            {[...Array(12)].map((_, i) => (
-                                <ArticleCardSkeleton key={i} />
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            </div>
-        );
-    }
-
-    if (!subcategory) {
+    if (!subcategory || !parentCategory) {
         return (
             <div className={styles.error}>
                 <h1>Category Not Found</h1>
@@ -98,6 +39,15 @@ export default function SubcategoryPage({ params }) {
                 <Link href="/" className={styles.backBtn}>Back to Home</Link>
             </div>
         );
+    }
+
+    let articles = [];
+    try {
+        const categoryId = `${parentCategory.id}/${subcategory.id}`;
+        const result = await getArticlesByCategory(categoryId, 24);
+        articles = result.articles;
+    } catch (error) {
+        console.error('Error fetching subcategory articles:', error);
     }
 
     return (
@@ -120,32 +70,11 @@ export default function SubcategoryPage({ params }) {
             <section className={styles.articlesSection}>
                 <div className="container">
                     {articles.length > 0 ? (
-                        <>
-                            <div className={styles.articlesGrid}>
-                                {articles.map((article) => (
-                                    <ArticleCard key={article.id} article={article} />
-                                ))}
-                            </div>
-
-                            {loadingMore && (
-                                <div className={styles.articlesGrid}>
-                                    {[...Array(4)].map((_, i) => (
-                                        <ArticleCardSkeleton key={i} />
-                                    ))}
-                                </div>
-                            )}
-
-                            {hasMore && !loadingMore && (
-                                <div className={styles.loadMore}>
-                                    <button
-                                        className={styles.loadMoreBtn}
-                                        onClick={loadMore}
-                                    >
-                                        Load More Articles
-                                    </button>
-                                </div>
-                            )}
-                        </>
+                        <div className={styles.articlesGrid}>
+                            {articles.map((article) => (
+                                <ArticleCard key={article.id} article={article} />
+                            ))}
+                        </div>
                     ) : (
                         <div className={styles.emptyState}>
                             <div className={styles.emptyIcon}>
@@ -165,3 +94,4 @@ export default function SubcategoryPage({ params }) {
         </div>
     );
 }
+
