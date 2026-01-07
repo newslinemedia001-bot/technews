@@ -194,6 +194,35 @@
     color: var(--text-tertiary);
 }
 
+/* Source Attribution */
+.sourceAttribution {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.25rem;
+    margin-top: 1.5rem;
+    background-color: var(--bg-tertiary);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.sourceAttribution svg {
+    flex-shrink: 0;
+    color: var(--color-accent);
+}
+
+.sourceAttribution a {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.sourceAttribution a:hover {
+    color: var(--color-accent-dark);
+}
+
 /* Featured Image */
 .featuredImage {
     padding: 2rem 0;

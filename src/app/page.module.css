@@ -156,6 +156,22 @@
   background-color: #1245a1 !important;
 }
 
+.videosSide {
+  background-color: #1a1d29 !important;
+}
+
+.videosSide .heroSideTitle {
+  color: var(--color-white);
+}
+
+.videosSide .minimalTitle a {
+  color: var(--color-white) !important;
+}
+
+.videosSide .metaSmall {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
 .technologySide .minimalTitle a {
   color: var(--color-white) !important;
 }
