@@ -160,16 +160,32 @@
   background-color: #1a1d29 !important;
 }
 
+[data-theme="light"] .videosSide {
+  background-color: #e5e7eb !important;
+}
+
 .videosSide .heroSideTitle {
   color: var(--color-white);
+}
+
+[data-theme="light"] .videosSide .heroSideTitle {
+  color: var(--text-primary);
 }
 
 .videosSide .minimalTitle a {
   color: var(--color-white) !important;
 }
 
+[data-theme="light"] .videosSide .minimalTitle a {
+  color: var(--text-primary) !important;
+}
+
 .videosSide .metaSmall {
   color: rgba(255, 255, 255, 0.7) !important;
+}
+
+[data-theme="light"] .videosSide .metaSmall {
+  color: var(--text-secondary) !important;
 }
 
 .technologySide .minimalTitle a {
