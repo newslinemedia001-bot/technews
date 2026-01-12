@@ -128,10 +128,10 @@ export default function RSSFeedsPage() {
       
       const result = await response.json();
       
-      if (result.success) {
+      if (response.ok && result.success) {
         setMessage(`✓ Imported ${result.totalImported} articles from ${result.successfulFeeds} feeds (${result.totalDuplicates} duplicates skipped)`);
       } else {
-        setMessage(`✗ Error: ${result.error}`);
+        setMessage(`✗ Error: ${result.error || 'Unknown error'} - ${result.details || ''}`);
       }
     } catch (error) {
       setMessage(`✗ Error: ${error.message}`);
