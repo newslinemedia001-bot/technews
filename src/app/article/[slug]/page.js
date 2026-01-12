@@ -61,6 +61,7 @@ const serializeArticle = (article) => {
         ...article,
         createdAt: article.createdAt?.toDate?.()?.toISOString() || article.createdAt,
         updatedAt: article.updatedAt?.toDate?.()?.toISOString() || article.updatedAt,
+        pubDate: article.pubDate?.toDate?.()?.toISOString() || article.pubDate
     };
 };
 

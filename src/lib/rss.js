@@ -84,14 +84,24 @@ export async function fetchRSSFeed(feedUrl) {
 
 // Extract image from RSS item
 function extractImage(item) {
-  // Try media:content
-  if (item.mediaContent && item.mediaContent.$) {
-    return item.mediaContent.$.url;
+  // Try media:content first
+  if (item.mediaContent) {
+    if (item.mediaContent.$ && item.mediaContent.$.url) {
+      return item.mediaContent.$.url;
+    }
+    if (Array.isArray(item.mediaContent) && item.mediaContent[0]?.$ && item.mediaContent[0].$.url) {
+      return item.mediaContent[0].$.url;
+    }
   }
   
   // Try media:thumbnail
-  if (item.mediaThumbnail && item.mediaThumbnail.$) {
-    return item.mediaThumbnail.$.url;
+  if (item.mediaThumbnail) {
+    if (item.mediaThumbnail.$ && item.mediaThumbnail.$.url) {
+      return item.mediaThumbnail.$.url;
+    }
+    if (Array.isArray(item.mediaThumbnail) && item.mediaThumbnail[0]?.$ && item.mediaThumbnail[0].$.url) {
+      return item.mediaThumbnail[0].$.url;
+    }
   }
   
   // Try enclosure
@@ -99,15 +109,22 @@ function extractImage(item) {
     return item.enclosure.url;
   }
   
-  // Try to extract from content
+  // Try to extract from content:encoded
   if (item.contentEncoded) {
-    const imgMatch = item.contentEncoded.match(/<img[^>]+src="([^">]+)"/);
-    if (imgMatch) return imgMatch[1];
+    const imgMatch = item.contentEncoded.match(/<img[^>]+src=["']([^"'>]+)["']/i);
+    if (imgMatch && imgMatch[1]) return imgMatch[1];
   }
   
+  // Try to extract from content
   if (item.content) {
-    const imgMatch = item.content.match(/<img[^>]+src="([^">]+)"/);
-    if (imgMatch) return imgMatch[1];
+    const imgMatch = item.content.match(/<img[^>]+src=["']([^"'>]+)["']/i);
+    if (imgMatch && imgMatch[1]) return imgMatch[1];
+  }
+  
+  // Try to extract from description
+  if (item.description) {
+    const imgMatch = item.description.match(/<img[^>]+src=["']([^"'>]+)["']/i);
+    if (imgMatch && imgMatch[1]) return imgMatch[1];
   }
   
   return null;
@@ -141,19 +158,35 @@ export async function importArticle(item, feedName, category) {
     const slug = generateSlug(item.title);
     const image = extractImage(item);
     
-    // Clean content
-    let content = item.contentEncoded || item.content || item.description || '';
-    // Remove HTML tags for excerpt
-    const excerpt = content.replace(/<[^>]*>/g, '').substring(0, 200);
+    // Get the best content available
+    let content = item.contentEncoded || item['content:encoded'] || item.content || item.description || '';
+    
+    // If content is too short, try to get more
+    if (content.length < 200 && item.description) {
+      content = item.description;
+    }
+    
+    // Clean and format content - keep HTML for better formatting
+    if (content) {
+      // Remove script tags
+      content = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+      // Remove style tags
+      content = content.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+      // Keep paragraphs, links, images, headings
+    }
+    
+    // Create excerpt from content
+    const textOnly = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const excerpt = textOnly.substring(0, 250) + (textOnly.length > 250 ? '...' : '');
     
     const articleData = {
       title: item.title,
       slug: slug,
-      content: content,
+      content: content || textOnly,
       excerpt: excerpt,
       category: category,
-      author: `${feedName} (Aggregated)`,
-      featuredImage: image,
+      author: feedName,
+      featuredImage: image || '',
       status: 'published',
       featured: false,
       sourceUrl: item.link,
