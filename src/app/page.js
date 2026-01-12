@@ -9,6 +9,17 @@ import styles from './page.module.css';
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
+// Helper to serialize Firebase timestamps
+function serializeArticles(articles) {
+  if (!articles) return [];
+  return articles.map(article => ({
+    ...article,
+    createdAt: article.createdAt?.toDate?.()?.toISOString() || article.createdAt,
+    updatedAt: article.updatedAt?.toDate?.()?.toISOString() || article.updatedAt,
+    pubDate: article.pubDate?.toDate?.()?.toISOString() || article.pubDate
+  }));
+}
+
 export default async function HomePage() {
   // Fetch all data in parallel
   const [
@@ -31,16 +42,18 @@ export default async function HomePage() {
     getArticlesByCategory('videos', 4)
   ]);
 
-  const latestArticles = latestResult?.articles || [];
+  const serializedFeatured = serializeArticles(featuredArticles);
+  const serializedTrending = serializeArticles(trendingArticles);
+  const latestArticles = serializeArticles(latestResult?.articles || []);
   const categoryArticles = {
-    technology: techArticles?.articles || [],
-    business: bizArticles?.articles || [],
-    lifestyle: lifestyleArticles?.articles || [],
-    opinion: opinionArticles?.articles || [],
-    videos: videoArticles?.articles || []
+    technology: serializeArticles(techArticles?.articles || []),
+    business: serializeArticles(bizArticles?.articles || []),
+    lifestyle: serializeArticles(lifestyleArticles?.articles || []),
+    opinion: serializeArticles(opinionArticles?.articles || []),
+    videos: serializeArticles(videoArticles?.articles || [])
   };
 
-  const hasArticles = (latestArticles.length > 0) || (featuredArticles.length > 0);
+  const hasArticles = (latestArticles.length > 0) || (serializedFeatured.length > 0);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -104,24 +117,23 @@ export default async function HomePage() {
               </div>
 
               {/* Featured Article - Center */}
-              {featuredArticles[0] && (
+              {serializedFeatured[0] && (
                 <div className={styles.heroMain}>
-                  <ArticleCard article={featuredArticles[0]} variant="featured" />
+                  <ArticleCard article={serializedFeatured[0]} variant="featured" />
                 </div>
               )}
 
-              {/* Videos - Right Side */}
-              <div className={`${styles.heroSide} ${styles.videosSide}`}>
-                <h3 className={styles.heroSideTitle}>Videos</h3>
+              {/* Business - Right Side */}
+              <div className={`${styles.heroSide} ${styles.businessSide}`}>
+                <h3 className={styles.heroSideTitle}>Business</h3>
                 <div className={styles.heroSideContent}>
-                  {categoryArticles['videos']?.slice(0, 4).map((article) => (
+                  {categoryArticles['business']?.slice(0, 3).map((article) => (
                     <ArticleCard
                       key={article.id}
                       article={article}
                       variant="minimal"
                       showMeta={true}
-                      showMinimalImage={true}
-                      titleLineClamp={2}
+                      showMinimalImage={false}
                     />
                   ))}
                 </div>
@@ -267,6 +279,30 @@ export default async function HomePage() {
                   </div>
                 )}
               </div>
+
+              {/* Videos Section */}
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>Videos</h2>
+                  <Link href="/category/videos" className={styles.sectionLink}>
+                    View All
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </Link>
+                </div>
+                {categoryArticles['videos']?.length > 0 ? (
+                  <div className={styles.articlesGrid}>
+                    {categoryArticles['videos'].slice(0, 4).map((article) => (
+                      <ArticleCard key={article.id} article={article} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className={styles.noArticlesSmall}>
+                    <p>No articles in this category yet.</p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Sidebar */}
@@ -275,8 +311,8 @@ export default async function HomePage() {
               <div className={styles.widget}>
                 <h3 className={styles.widgetTitle}>Trending</h3>
                 <div className={styles.trendingList}>
-                  {trendingArticles && trendingArticles.length > 0 ? (
-                    trendingArticles.map((article, index) => (
+                  {serializedTrending && serializedTrending.length > 0 ? (
+                    serializedTrending.map((article, index) => (
                       <Link key={article.id} href={`/article/${article.slug}`} className={styles.trendingItem}>
                         <span className={styles.trendingNumber}>{index + 1}</span>
                         {article.featuredImage && (
@@ -326,6 +362,33 @@ export default async function HomePage() {
               {/* Weather Widget */}
               <div className={styles.widget} style={{ background: 'transparent', padding: 0, boxShadow: 'none' }}>
                 <WeatherWidget />
+              </div>
+
+              {/* Technology Articles */}
+              <div className={styles.widget}>
+                <h3 className={styles.widgetTitle}>Technology</h3>
+                <div className={styles.trendingList}>
+                  {categoryArticles['technology']?.slice(0, 5).map((article) => (
+                    <Link key={article.id} href={`/article/${article.slug}`} className={styles.trendingItem}>
+                      {article.featuredImage && (
+                        <div className={styles.trendingImage}>
+                          <Image
+                            src={article.featuredImage}
+                            alt={article.title}
+                            fill
+                            sizes="60px"
+                            style={{ objectFit: 'cover' }}
+                          />
+                        </div>
+                      )}
+                      <div className={styles.trendingContent}>
+                        <span className={styles.trendingTitle}>
+                          {article.title}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </aside>
           </div>

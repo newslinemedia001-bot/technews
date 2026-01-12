@@ -188,6 +188,87 @@
   color: var(--text-secondary) !important;
 }
 
+.businessSide {
+  background-color: #1a1d29 !important;
+}
+
+[data-theme="light"] .businessSide {
+  background-color: #e5e7eb !important;
+}
+
+.businessSide .heroSideTitle {
+  color: var(--color-white);
+}
+
+[data-theme="light"] .businessSide .heroSideTitle {
+  color: var(--text-primary);
+}
+
+.businessSide .minimalTitle a {
+  color: var(--color-white) !important;
+}
+
+[data-theme="light"] .businessSide .minimalTitle a {
+  color: var(--text-primary) !important;
+}
+
+.businessSide .metaSmall {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme="light"] .businessSide .metaSmall {
+  color: var(--text-secondary) !important;
+}
+
+.businessSide .minimalCard {
+  position: relative;
+  padding: 0.75rem 0 !important;
+}
+
+.businessSide .minimalCard::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="light"] .businessSide .minimalCard::after {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.businessSide .minimalCard:last-child::after {
+  display: none;
+}
+
+.businessSide .minimalCard:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-radius: var(--radius-md);
+  padding: 0.5rem !important;
+  margin: -0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.businessSide .minimalCard:hover .minimalTitle a {
+  color: var(--color-white) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="light"] .businessSide .minimalCard:hover .minimalTitle a {
+  color: var(--text-primary) !important;
+}
+
+.businessSide .minimalCard:hover .metaSmall {
+  color: rgba(255, 255, 255, 0.8) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="light"] .businessSide .minimalCard:hover .metaSmall {
+  color: var(--text-secondary) !important;
+}
+
 .technologySide .minimalTitle a {
   color: var(--color-white) !important;
 }

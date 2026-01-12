@@ -3,13 +3,10 @@
 import { useState, useEffect } from 'react';
 import styles from './WeatherWidget.module.css';
 
-// City coordinates mapping
+// City coordinates mapping - Only Nairobi and Mombasa
 const CITIES = [
     { name: 'Nairobi', lat: -1.2921, lon: 36.8219 },
-    { name: 'Mombasa', lat: -4.0435, lon: 39.6682 },
-    { name: 'Kisumu', lat: -0.0917, lon: 34.7680 },
-    { name: 'Nakuru', lat: -0.3031, lon: 36.0800 },
-    { name: 'Eldoret', lat: 0.5143, lon: 35.2698 }
+    { name: 'Mombasa', lat: -4.0435, lon: 39.6682 }
 ];
 
 export default function WeatherWidget() {
