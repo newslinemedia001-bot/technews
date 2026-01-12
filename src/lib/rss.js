@@ -13,8 +13,28 @@ const parser = new Parser({
   }
 });
 
-// Default RSS feeds - mixed categories
+// Default RSS feeds - ALL categories covered
 export const defaultFeeds = [
+  // News
+  {
+    name: 'CNN',
+    url: 'http://rss.cnn.com/rss/edition.rss',
+    category: 'news',
+    enabled: true
+  },
+  {
+    name: 'BBC News',
+    url: 'http://feeds.bbci.co.uk/news/rss.xml',
+    category: 'news',
+    enabled: true
+  },
+  {
+    name: 'Reuters',
+    url: 'https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best',
+    category: 'news',
+    enabled: true
+  },
+  // Technology
   {
     name: 'TechCrunch',
     url: 'https://techcrunch.com/feed/',
@@ -33,6 +53,7 @@ export const defaultFeeds = [
     category: 'technology',
     enabled: true
   },
+  // Business
   {
     name: 'BBC Business',
     url: 'http://feeds.bbci.co.uk/news/business/rss.xml',
@@ -40,23 +61,38 @@ export const defaultFeeds = [
     enabled: true
   },
   {
-    name: 'Reuters Business',
-    url: 'https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best',
+    name: 'Bloomberg',
+    url: 'https://www.bloomberg.com/feed/podcast/etf-report.xml',
     category: 'business',
     enabled: true
   },
+  // Sports
   {
-    name: 'CNN',
-    url: 'http://rss.cnn.com/rss/edition.rss',
-    category: 'news',
+    name: 'ESPN',
+    url: 'https://www.espn.com/espn/rss/news',
+    category: 'sports',
     enabled: true
   },
   {
-    name: 'BBC News',
-    url: 'http://feeds.bbci.co.uk/news/rss.xml',
-    category: 'news',
+    name: 'BBC Sport',
+    url: 'http://feeds.bbci.co.uk/sport/rss.xml',
+    category: 'sports',
     enabled: true
   },
+  // Opinion
+  {
+    name: 'The Guardian Opinion',
+    url: 'https://www.theguardian.com/uk/commentisfree/rss',
+    category: 'opinion',
+    enabled: true
+  },
+  {
+    name: 'New York Times Opinion',
+    url: 'https://rss.nytimes.com/services/xml/rss/nyt/Opinion.xml',
+    category: 'opinion',
+    enabled: true
+  },
+  // Lifestyle
   {
     name: 'Lifehacker',
     url: 'https://lifehacker.com/rss',
@@ -67,6 +103,26 @@ export const defaultFeeds = [
     name: 'Vogue',
     url: 'https://www.vogue.com/feed/rss',
     category: 'lifestyle',
+    enabled: true
+  },
+  // Videos
+  {
+    name: 'YouTube Tech',
+    url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCBJycsmduvYEL83R_U4JriQ',
+    category: 'videos',
+    enabled: true
+  },
+  // Podcasts
+  {
+    name: 'NPR Podcasts',
+    url: 'https://www.npr.org/rss/podcast.php?id=510318',
+    category: 'podcasts',
+    enabled: true
+  },
+  {
+    name: 'The Daily',
+    url: 'https://feeds.simplecast.com/54nAGcIl',
+    category: 'podcasts',
     enabled: true
   }
 ];
@@ -82,49 +138,87 @@ export async function fetchRSSFeed(feedUrl) {
   }
 }
 
-// Extract image from RSS item
+// Extract image from RSS item - prefer high quality
 function extractImage(item) {
-  // Try media:content first
+  const images = [];
+  
+  // Try media:content (often has multiple sizes)
   if (item.mediaContent) {
-    if (item.mediaContent.$ && item.mediaContent.$.url) {
-      return item.mediaContent.$.url;
-    }
-    if (Array.isArray(item.mediaContent) && item.mediaContent[0]?.$ && item.mediaContent[0].$.url) {
-      return item.mediaContent[0].$.url;
+    if (Array.isArray(item.mediaContent)) {
+      item.mediaContent.forEach(media => {
+        if (media.$ && media.$.url && media.$.medium === 'image') {
+          const width = parseInt(media.$.width) || 0;
+          images.push({ url: media.$.url, width });
+        }
+      });
+    } else if (item.mediaContent.$ && item.mediaContent.$.url) {
+      images.push({ url: item.mediaContent.$.url, width: parseInt(item.mediaContent.$.width) || 0 });
     }
   }
   
   // Try media:thumbnail
   if (item.mediaThumbnail) {
-    if (item.mediaThumbnail.$ && item.mediaThumbnail.$.url) {
-      return item.mediaThumbnail.$.url;
-    }
-    if (Array.isArray(item.mediaThumbnail) && item.mediaThumbnail[0]?.$ && item.mediaThumbnail[0].$.url) {
-      return item.mediaThumbnail[0].$.url;
+    if (Array.isArray(item.mediaThumbnail)) {
+      item.mediaThumbnail.forEach(thumb => {
+        if (thumb.$ && thumb.$.url) {
+          const width = parseInt(thumb.$.width) || 0;
+          images.push({ url: thumb.$.url, width });
+        }
+      });
+    } else if (item.mediaThumbnail.$ && item.mediaThumbnail.$.url) {
+      images.push({ url: item.mediaThumbnail.$.url, width: parseInt(item.mediaThumbnail.$.width) || 0 });
     }
   }
   
   // Try enclosure
-  if (item.enclosure && item.enclosure.url) {
-    return item.enclosure.url;
+  if (item.enclosure && item.enclosure.url && item.enclosure.type && item.enclosure.type.startsWith('image')) {
+    images.push({ url: item.enclosure.url, width: 0 });
   }
   
-  // Try to extract from content:encoded
-  if (item.contentEncoded) {
-    const imgMatch = item.contentEncoded.match(/<img[^>]+src=["']([^"'>]+)["']/i);
-    if (imgMatch && imgMatch[1]) return imgMatch[1];
+  // Extract from content:encoded
+  if (item.contentEncoded || item['content:encoded']) {
+    const content = item.contentEncoded || item['content:encoded'];
+    const imgMatches = content.matchAll(/<img[^>]+src=["']([^"'>]+)["'][^>]*>/gi);
+    for (const match of imgMatches) {
+      const url = match[1];
+      // Skip small icons, tracking pixels, and ads
+      if (!url.includes('1x1') && !url.includes('pixel') && !url.includes('feedburner') && !url.includes('icon')) {
+        // Try to get width from img tag
+        const widthMatch = match[0].match(/width=["']?(\d+)/i);
+        const width = widthMatch ? parseInt(widthMatch[1]) : 0;
+        images.push({ url, width });
+      }
+    }
   }
   
-  // Try to extract from content
+  // Extract from content
   if (item.content) {
-    const imgMatch = item.content.match(/<img[^>]+src=["']([^"'>]+)["']/i);
-    if (imgMatch && imgMatch[1]) return imgMatch[1];
+    const imgMatches = item.content.matchAll(/<img[^>]+src=["']([^"'>]+)["'][^>]*>/gi);
+    for (const match of imgMatches) {
+      const url = match[1];
+      if (!url.includes('1x1') && !url.includes('pixel') && !url.includes('feedburner') && !url.includes('icon')) {
+        const widthMatch = match[0].match(/width=["']?(\d+)/i);
+        const width = widthMatch ? parseInt(widthMatch[1]) : 0;
+        images.push({ url, width });
+      }
+    }
   }
   
-  // Try to extract from description
+  // Extract from description
   if (item.description) {
-    const imgMatch = item.description.match(/<img[^>]+src=["']([^"'>]+)["']/i);
-    if (imgMatch && imgMatch[1]) return imgMatch[1];
+    const imgMatches = item.description.matchAll(/<img[^>]+src=["']([^"'>]+)["'][^>]*>/gi);
+    for (const match of imgMatches) {
+      const url = match[1];
+      if (!url.includes('1x1') && !url.includes('pixel') && !url.includes('feedburner') && !url.includes('icon')) {
+        images.push({ url, width: 0 });
+      }
+    }
+  }
+  
+  // Sort by width (prefer larger images) and return the best one
+  if (images.length > 0) {
+    images.sort((a, b) => b.width - a.width);
+    return images[0].url;
   }
   
   return null;
@@ -158,26 +252,28 @@ export async function importArticle(item, feedName, category) {
     const slug = generateSlug(item.title);
     const image = extractImage(item);
     
-    // Get the best content available
-    let content = item.contentEncoded || item['content:encoded'] || item.content || item.description || '';
+    // Get the best content available - try multiple sources
+    let content = item['content:encoded'] || item.contentEncoded || item.content || item.description || item.summary || '';
     
-    // If content is too short, try to get more
-    if (content.length < 200 && item.description) {
-      content = item.description;
+    // Clean and format content
+    if (content) {
+      // Remove script and style tags
+      content = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+      content = content.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+      // Remove tracking pixels and ads
+      content = content.replace(/<img[^>]*feedburner[^>]*>/gi, '');
+      content = content.replace(/<a[^>]*feedburner[^>]*>.*?<\/a>/gi, '');
     }
     
-    // Clean and format content - keep HTML for better formatting
-    if (content) {
-      // Remove script tags
-      content = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-      // Remove style tags
-      content = content.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
-      // Keep paragraphs, links, images, headings
+    // If content is too short (less than 500 chars), add a read more section
+    const textOnly = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    
+    if (textOnly.length < 500 && item.link) {
+      content += `\n\n<p><strong>This is a summary. <a href="${item.link}" target="_blank" rel="noopener noreferrer">Read the full article on ${feedName}</a></strong></p>`;
     }
     
     // Create excerpt from content
-    const textOnly = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-    const excerpt = textOnly.substring(0, 250) + (textOnly.length > 250 ? '...' : '');
+    const excerpt = textOnly.substring(0, 300) + (textOnly.length > 300 ? '...' : '');
     
     const articleData = {
       title: item.title,
@@ -199,7 +295,7 @@ export async function importArticle(item, feedName, category) {
     };
 
     const docRef = await addDoc(collection(db, 'articles'), articleData);
-    console.log(`Imported article: ${item.title}`);
+    console.log(`Imported article: ${item.title} (${textOnly.length} chars)`);
     
     return { success: true, id: docRef.id, title: item.title };
   } catch (error) {
@@ -249,7 +345,8 @@ export async function importFromAllFeeds() {
   const settingsRef = doc(db, 'settings', 'rssRotation');
   const settingsDoc = await getDoc(settingsRef);
   
-  const categories = ['technology', 'business', 'news', 'lifestyle'];
+  // All your categories
+  const categories = ['news', 'technology', 'business', 'sports', 'opinion', 'lifestyle', 'videos', 'podcasts'];
   let currentCategoryIndex = 0;
   
   if (settingsDoc.exists()) {

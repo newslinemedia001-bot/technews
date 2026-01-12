@@ -270,7 +270,7 @@ export const incrementViews = async (articleId) => {
 };
 
 // Get all articles (for admin)
-export const getAllArticles = async (statusFilter = null, limitCount = 50) => {
+export const getAllArticles = async (statusFilter = null, limitCount = 1000) => {
     let q;
 
     if (statusFilter) {

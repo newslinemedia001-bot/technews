@@ -129,7 +129,7 @@ export default function RSSFeedsPage() {
       const result = await response.json();
       
       if (response.ok && result.success) {
-        setMessage(`✓ Imported ${result.totalImported} articles from ${result.successfulFeeds} feeds (${result.totalDuplicates} duplicates skipped)`);
+        setMessage(`✓ Imported ${result.totalImported} articles from ${result.category.toUpperCase()} category (${result.totalDuplicates} duplicates skipped). Next import: ${result.nextCategory.toUpperCase()}`);
       } else {
         setMessage(`✗ Error: ${result.error || 'Unknown error'} - ${result.details || ''}`);
       }
