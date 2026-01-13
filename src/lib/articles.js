@@ -160,7 +160,7 @@ export const getArticlesByCategory = async (category, limitCount = 10, lastDoc =
             featuredImage: data.featuredImage,
             category: data.category,
             author: data.author,
-            createdAt: data.createdAt,
+            createdAt: data.createdAt?.toDate?.() || new Date(),
             views: data.views,
             content: contentPreview, // Truncated
             videoId: data.videoId || null
@@ -197,7 +197,7 @@ export const getLatestArticles = async (limitCount = 10, lastDoc = null) => {
             featuredImage: data.featuredImage,
             category: data.category,
             author: data.author,
-            createdAt: data.createdAt,
+            createdAt: data.createdAt?.toDate?.() || new Date(),
             views: data.views,
             content: contentPreview, // Truncated content
             videoId: data.videoId || null
@@ -230,7 +230,7 @@ export const getFeaturedArticles = async (limitCount = 5) => {
             featuredImage: data.featuredImage,
             category: data.category,
             author: data.author,
-            createdAt: data.createdAt,
+            createdAt: data.createdAt?.toDate?.() || new Date(),
             views: data.views,
             content: contentPreview // Truncated
         };
@@ -254,7 +254,7 @@ export const getTrendingArticles = async (limitCount = 10) => {
             title: data.title,
             slug: data.slug,
             views: data.views,
-            createdAt: data.createdAt,
+            createdAt: data.createdAt?.toDate?.() || new Date(),
             featuredImage: data.featuredImage
         };
     });

@@ -29,7 +29,7 @@ export default async function HomePage() {
     techArticles,
     bizArticles,
     lifestyleArticles,
-    opinionArticles,
+    reviewsArticles,
     videoArticles
   ] = await Promise.all([
     getFeaturedArticles(1),
@@ -38,7 +38,7 @@ export default async function HomePage() {
     getArticlesByCategory('technology', 4),
     getArticlesByCategory('business', 4),
     getArticlesByCategory('lifestyle', 4),
-    getArticlesByCategory('opinion', 4),
+    getArticlesByCategory('reviews', 4),
     getArticlesByCategory('videos', 4)
   ]);
 
@@ -49,7 +49,7 @@ export default async function HomePage() {
     technology: serializeArticles(techArticles?.articles || []),
     business: serializeArticles(bizArticles?.articles || []),
     lifestyle: serializeArticles(lifestyleArticles?.articles || []),
-    opinion: serializeArticles(opinionArticles?.articles || []),
+    reviews: serializeArticles(reviewsArticles?.articles || []),
     videos: serializeArticles(videoArticles?.articles || [])
   };
 
@@ -256,20 +256,20 @@ export default async function HomePage() {
                 )}
               </div>
 
-              {/* Opinion Section */}
+              {/* Reviews Section */}
               <div className={styles.section}>
                 <div className={styles.sectionHeader}>
-                  <h2 className={styles.sectionTitle}>Opinion</h2>
-                  <Link href="/category/opinion" className={styles.sectionLink}>
+                  <h2 className={styles.sectionTitle}>Reviews</h2>
+                  <Link href="/category/reviews" className={styles.sectionLink}>
                     View All
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="m9 18 6-6-6-6" />
                     </svg>
                   </Link>
                 </div>
-                {categoryArticles['opinion']?.length > 0 ? (
+                {categoryArticles['reviews']?.length > 0 ? (
                   <div className={styles.articlesGrid}>
-                    {categoryArticles['opinion'].slice(0, 4).map((article) => (
+                    {categoryArticles['reviews'].slice(0, 4).map((article) => (
                       <ArticleCard key={article.id} article={article} />
                     ))}
                   </div>
@@ -369,6 +369,33 @@ export default async function HomePage() {
                 <h3 className={styles.widgetTitle}>Technology</h3>
                 <div className={styles.trendingList}>
                   {categoryArticles['technology']?.slice(0, 5).map((article) => (
+                    <Link key={article.id} href={`/article/${article.slug}`} className={styles.trendingItem}>
+                      {article.featuredImage && (
+                        <div className={styles.trendingImage}>
+                          <Image
+                            src={article.featuredImage}
+                            alt={article.title}
+                            fill
+                            sizes="60px"
+                            style={{ objectFit: 'cover' }}
+                          />
+                        </div>
+                      )}
+                      <div className={styles.trendingContent}>
+                        <span className={styles.trendingTitle}>
+                          {article.title}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Reviews Articles */}
+              <div className={styles.widget}>
+                <h3 className={styles.widgetTitle}>Reviews</h3>
+                <div className={styles.trendingList}>
+                  {categoryArticles['reviews']?.slice(0, 5).map((article) => (
                     <Link key={article.id} href={`/article/${article.slug}`} className={styles.trendingItem}>
                       {article.featuredImage && (
                         <div className={styles.trendingImage}>

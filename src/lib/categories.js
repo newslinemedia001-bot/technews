@@ -37,9 +37,9 @@ export const categories = [
         ]
     },
     {
-        id: 'sports',
-        name: 'Sports',
-        slug: 'sports',
+        id: 'featured',
+        name: 'Featured',
+        slug: 'featured',
         subcategories: [
             { id: 'football', name: 'Football', slug: 'football' },
             { id: 'athletics', name: 'Athletics', slug: 'athletics' },
@@ -49,9 +49,9 @@ export const categories = [
         ]
     },
     {
-        id: 'opinion',
-        name: 'Opinion',
-        slug: 'opinion',
+        id: 'reviews',
+        name: 'Reviews',
+        slug: 'reviews',
         subcategories: [
             { id: 'editorial', name: 'Editorial', slug: 'editorial' },
             { id: 'analysis', name: 'Analysis', slug: 'analysis' },

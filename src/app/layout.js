@@ -49,18 +49,16 @@ export default function RootLayout({ children }) {
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              (function() {
-                try {
-                  const theme = localStorage.getItem('theme') || 'light';
-                  document.documentElement.setAttribute('data-theme', theme);
-                } catch (e) {}
-              })();
+              try {
+                const theme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+              } catch (e) {}
             `,
           }}
         />
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5672747362546507" crossOrigin="anonymous"></script>
       </head>
-      <body className={inter.className} suppressHydrationWarning>
+      <body className={inter.className}>
         <Header />
         <main>
           {children}

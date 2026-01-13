@@ -87,6 +87,18 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'image.simplecastcdn.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'npr.brightspotcdn.com',
+        port: '',
+        pathname: '/**',
+      },
       // Wildcard for any other RSS sources
       {
         protocol: 'https',

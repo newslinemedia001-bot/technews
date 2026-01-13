@@ -66,30 +66,30 @@ export const defaultFeeds = [
     category: 'business',
     enabled: true
   },
-  // Sports
+  // Featured (was Sports)
   {
     name: 'ESPN',
     url: 'https://www.espn.com/espn/rss/news',
-    category: 'sports',
+    category: 'featured',
     enabled: true
   },
   {
     name: 'BBC Sport',
     url: 'http://feeds.bbci.co.uk/sport/rss.xml',
-    category: 'sports',
+    category: 'featured',
     enabled: true
   },
-  // Opinion
+  // Reviews (was Opinion)
   {
     name: 'The Guardian Opinion',
     url: 'https://www.theguardian.com/uk/commentisfree/rss',
-    category: 'opinion',
+    category: 'reviews',
     enabled: true
   },
   {
     name: 'New York Times Opinion',
     url: 'https://rss.nytimes.com/services/xml/rss/nyt/Opinion.xml',
-    category: 'opinion',
+    category: 'reviews',
     enabled: true
   },
   // Lifestyle
@@ -175,6 +175,14 @@ function extractImage(item) {
     images.push({ url: item.enclosure.url, width: 0 });
   }
   
+  // Try iTunes image (common in podcast feeds)
+  if (item.itunes && item.itunes.image) {
+    const imageUrl = typeof item.itunes.image === 'string' ? item.itunes.image : item.itunes.image.href || item.itunes.image.$?.href;
+    if (imageUrl) {
+      images.push({ url: imageUrl, width: 1000 }); // iTunes images are usually high quality
+    }
+  }
+  
   // Extract from content:encoded
   if (item.contentEncoded || item['content:encoded']) {
     const content = item.contentEncoded || item['content:encoded'];
@@ -250,7 +258,25 @@ export async function importArticle(item, feedName, category) {
     }
 
     const slug = generateSlug(item.title);
-    const image = extractImage(item);
+    let image = extractImage(item);
+    let videoId = null;
+    
+    // Check if it's a YouTube video and extract video ID
+    // YouTube RSS feeds use format: https://www.youtube.com/watch?v=VIDEO_ID
+    if (item.link && (item.link.includes('youtube.com') || item.link.includes('youtu.be'))) {
+      const youtubeMatch = item.link.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([a-zA-Z0-9_-]{11})/);
+      if (youtubeMatch) {
+        videoId = youtubeMatch[1];
+        // Always use YouTube thumbnail for video content (maxresdefault is highest quality)
+        image = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+      }
+    }
+    
+    // Also check the ID field that YouTube RSS feeds provide
+    if (!videoId && item.id && item.id.includes('yt:video:')) {
+      videoId = item.id.replace('yt:video:', '');
+      image = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    }
     
     // Get the best content available - try multiple sources
     let content = item['content:encoded'] || item.contentEncoded || item.content || item.description || item.summary || '';
@@ -282,7 +308,8 @@ export async function importArticle(item, feedName, category) {
       excerpt: excerpt,
       category: category,
       author: feedName,
-      featuredImage: image || '',
+      featuredImage: image || 'https://via.placeholder.com/1200x630/1a1a1a/ffffff?text=TechNews',
+      videoId: videoId || '',
       status: 'published',
       featured: false,
       sourceUrl: item.link,
@@ -295,7 +322,7 @@ export async function importArticle(item, feedName, category) {
     };
 
     const docRef = await addDoc(collection(db, 'articles'), articleData);
-    console.log(`Imported article: ${item.title} (${textOnly.length} chars)`);
+    console.log(`Imported article: ${item.title} (${textOnly.length} chars)${videoId ? ' [VIDEO]' : ''}`);
     
     return { success: true, id: docRef.id, title: item.title };
   } catch (error) {
@@ -346,7 +373,7 @@ export async function importFromAllFeeds() {
   const settingsDoc = await getDoc(settingsRef);
   
   // All your categories
-  const categories = ['news', 'technology', 'business', 'sports', 'opinion', 'lifestyle', 'videos', 'podcasts'];
+  const categories = ['news', 'technology', 'business', 'featured', 'reviews', 'lifestyle', 'videos', 'podcasts'];
   let currentCategoryIndex = 0;
   
   if (settingsDoc.exists()) {

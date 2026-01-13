@@ -283,7 +283,7 @@ export default function RSSFeedsPage() {
       <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '8px' }}>
         <h2 style={{ marginBottom: '1rem' }}>Configured Feeds</h2>
         <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          Auto-import runs every 6 hours, rotating through categories (Technology → Business → News → Lifestyle → repeat)
+          Auto-import runs every 6 hours, rotating through categories (News → Technology → Business → Featured → Reviews → Lifestyle → Videos → Podcasts → repeat)
         </p>
         
         {feeds.length === 0 ? (

@@ -296,13 +296,24 @@ export default function Header() {
                             </div>
                         )}
 
-                        {/* Logo - Centered */}
+                        {/* Logo - Left */}
                         <Link href="/" className={styles.logo}>
                             <div className={styles.logoText}>
                                 <span className={styles.logoPrimary}>Tech</span>
                                 <span className={styles.logoAccent}>News</span>
                             </div>
                         </Link>
+
+                        {/* Center Ad Banner */}
+                        <div className={styles.centerAd}>
+                            <a href="mailto:newslinedigitaltv@gmail.com" target="_blank" rel="noopener noreferrer">
+                                <img 
+                                    src="/newsline-ad.jpg" 
+                                    alt="Newsline Media & Training Agency - Attachment Opportunities" 
+                                    className={styles.adImage}
+                                />
+                            </a>
+                        </div>
 
                         {/* Right Section */}
                         <div className={styles.rightSection}>
