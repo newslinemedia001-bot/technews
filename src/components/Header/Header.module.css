@@ -54,8 +54,9 @@
 
 .adImage {
     width: 100%;
-    height: 150px;
-    object-fit: cover;
+    height: 100%;
+    max-height: 200px;
+    object-fit: contain;
     border-radius: var(--radius-sm);
 }
 
@@ -325,6 +326,7 @@
 
     .mainHeaderContent {
         gap: 0.5rem;
+        flex-wrap: wrap;
     }
 
     .leftSection {
@@ -335,9 +337,20 @@
         gap: 0.5rem;
     }
 
+    .centerAd {
+        order: 3;
+        flex: 0 0 100%;
+        margin: 0.5rem 0 0;
+        width: 100%;
+    }
+
     /* Reduce padding on mobile */
     .mainHeader {
         padding: 0.5rem 0;
+    }
+
+    .adImage {
+        max-height: 120px;
     }
 }
 

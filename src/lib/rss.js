@@ -291,24 +291,67 @@ export async function importArticle(item, feedName, category) {
       content = content.replace(/<a[^>]*feedburner[^>]*>.*?<\/a>/gi, '');
     }
     
-    // If content is too short (less than 500 chars), add a read more section
+    // Get text-only version for length checking
     const textOnly = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
     
-    if (textOnly.length < 500 && item.link) {
-      content += `\n\n<p><strong>This is a summary. <a href="${item.link}" target="_blank" rel="noopener noreferrer">Read the full article on ${feedName}</a></strong></p>`;
+    // Ensure content has at least 3 paragraphs (minimum 600 characters)
+    if (textOnly.length < 600) {
+      // Split existing content into sentences
+      const sentences = textOnly.match(/[^.!?]+[.!?]+/g) || [textOnly];
+      
+      // Create paragraphs from sentences (2-3 sentences per paragraph)
+      const paragraphs = [];
+      for (let i = 0; i < sentences.length; i += 2) {
+        const paragraph = sentences.slice(i, i + 2).join(' ').trim();
+        if (paragraph) {
+          paragraphs.push(`<p>${paragraph}</p>`);
+        }
+      }
+      
+      // If still too short, add a read more section
+      if (paragraphs.length < 3 || textOnly.length < 400) {
+        paragraphs.push(`<p><strong>This article continues with more details and analysis.</strong></p>`);
+        paragraphs.push(`<p><a href="${item.link}" target="_blank" rel="noopener noreferrer">Read the complete article on ${feedName} →</a></p>`);
+      }
+      
+      content = paragraphs.join('\n\n');
+    } else {
+      // Content is good, just ensure it's wrapped in paragraphs if not already
+      if (!content.includes('<p>') && !content.includes('<div>')) {
+        // Split by double line breaks and wrap in paragraphs
+        const paragraphs = content.split(/\n\n+/).filter(p => p.trim());
+        content = paragraphs.map(p => `<p>${p.trim()}</p>`).join('\n\n');
+      }
     }
     
     // Create excerpt from content
-    const excerpt = textOnly.substring(0, 300) + (textOnly.length > 300 ? '...' : '');
+    const excerptText = textOnly.substring(0, 300) + (textOnly.length > 300 ? '...' : '');
+    
+    // CRITICAL: Ensure image exists - use placeholder if none found
+    if (!image || image.trim() === '') {
+      // Generate category-specific placeholder
+      const categoryColors = {
+        news: '2563eb',
+        technology: '7c3aed',
+        business: '059669',
+        featured: 'dc2626',
+        reviews: 'ea580c',
+        lifestyle: 'db2777',
+        videos: 'be123c',
+        podcasts: '0891b2'
+      };
+      const color = categoryColors[category] || '1a1a1a';
+      image = `https://via.placeholder.com/1200x630/${color}/ffffff?text=${encodeURIComponent(feedName)}`;
+    }
     
     const articleData = {
       title: item.title,
       slug: slug,
-      content: content || textOnly,
-      excerpt: excerpt,
+      content: content,
+      excerpt: excerptText,
       category: category,
       author: feedName,
-      featuredImage: image || 'https://via.placeholder.com/1200x630/1a1a1a/ffffff?text=TechNews',
+      featuredImage: image,
       videoId: videoId || '',
       status: 'published',
       featured: false,
@@ -322,7 +365,7 @@ export async function importArticle(item, feedName, category) {
     };
 
     const docRef = await addDoc(collection(db, 'articles'), articleData);
-    console.log(`Imported article: ${item.title} (${textOnly.length} chars)${videoId ? ' [VIDEO]' : ''}`);
+    console.log(`Imported article: ${item.title} (${textOnly.length} chars)${videoId ? ' [VIDEO]' : ''}${!extractImage(item) ? ' [PLACEHOLDER IMG]' : ''}`);
     
     return { success: true, id: docRef.id, title: item.title };
   } catch (error) {
@@ -406,6 +449,34 @@ export async function importFromAllFeeds() {
   return {
     category: currentCategory,
     nextCategory: categories[(currentCategoryIndex + 1) % categories.length],
+    results
+  };
+}
+
+// Import from specific category (MANUAL MODE)
+export async function importFromCategoryFeeds(category) {
+  const feeds = await getEnabledFeeds();
+  
+  // Filter feeds by requested category
+  const categoryFeeds = feeds.filter(feed => feed.category === category);
+  
+  if (categoryFeeds.length === 0) {
+    return {
+      category: category,
+      results: [],
+      message: `No enabled feeds found for category: ${category}`
+    };
+  }
+  
+  const results = [];
+  
+  for (const feed of categoryFeeds) {
+    const result = await importFromFeed(feed.url, feed.name, feed.category, 5);
+    results.push(result);
+  }
+  
+  return {
+    category: category,
     results
   };
 }

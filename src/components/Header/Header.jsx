@@ -76,7 +76,21 @@ function CategoryDropdown({ categoryId, categorySlug, onTriggerLoad }) {
                             <div className={styles.dropdownArticleContent}>
                                 <h4 className={styles.dropdownArticleTitle}>{article.title}</h4>
                                 <span className={styles.dropdownArticleDate}>
-                                    {new Date(article.createdAt?.seconds * 1000).toLocaleDateString()}
+                                    {(() => {
+                                        try {
+                                            // Handle Firestore Timestamp
+                                            if (article.createdAt?.seconds) {
+                                                return new Date(article.createdAt.seconds * 1000).toLocaleDateString();
+                                            }
+                                            // Handle ISO string or regular date
+                                            if (article.createdAt) {
+                                                return new Date(article.createdAt).toLocaleDateString();
+                                            }
+                                            return '';
+                                        } catch (e) {
+                                            return '';
+                                        }
+                                    })()}
                                 </span>
                             </div>
                         </Link>
@@ -306,10 +320,10 @@ export default function Header() {
 
                         {/* Center Ad Banner */}
                         <div className={styles.centerAd}>
-                            <a href="mailto:newslinedigitaltv@gmail.com" target="_blank" rel="noopener noreferrer">
-                                <img 
-                                    src="/newsline-ad.jpg" 
-                                    alt="Newsline Media & Training Agency - Attachment Opportunities" 
+                            <a href="https://newslinemedia.co.ke" target="_blank" rel="noopener noreferrer">
+                                <img
+                                    src="/newsline-ad.jpg"
+                                    alt="Newsline Media & Training Agency - Attachment Opportunities"
                                     className={styles.adImage}
                                 />
                             </a>

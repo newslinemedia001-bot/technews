@@ -12,6 +12,7 @@ export default function RSSFeedsPage() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingFeed, setEditingFeed] = useState(null);
   const [articlesPerFeed, setArticlesPerFeed] = useState(5);
+  const [selectedCategory, setSelectedCategory] = useState(''); // For manual category import
   const [newFeed, setNewFeed] = useState({
     name: '',
     url: '',
@@ -115,28 +116,58 @@ export default function RSSFeedsPage() {
 
   const handleImportAll = async () => {
     setImporting(true);
-    setMessage('Importing from all feeds...');
     
-    try {
-      const response = await fetch('/api/rss/import', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': '8fcb0cec763622059af59b1b541af454ff06059e9195aaf0e5616633b4e1fd27'
+    // Check if manual category is selected
+    if (selectedCategory) {
+      setMessage(`Importing from ${selectedCategory.toUpperCase()} category...`);
+      
+      try {
+        const response = await fetch('/api/rss/import', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': '8fcb0cec763622059af59b1b541af454ff06059e9195aaf0e5616633b4e1fd27'
+          },
+          body: JSON.stringify({ category: selectedCategory })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+          setMessage(`✓ Manually imported ${result.totalImported} articles from ${result.category.toUpperCase()} category (${result.totalDuplicates} duplicates skipped)`);
+        } else {
+          setMessage(`✗ Error: ${result.error || 'Unknown error'} - ${result.details || ''}`);
         }
-      });
-      
-      const result = await response.json();
-      
-      if (response.ok && result.success) {
-        setMessage(`✓ Imported ${result.totalImported} articles from ${result.category.toUpperCase()} category (${result.totalDuplicates} duplicates skipped). Next import: ${result.nextCategory.toUpperCase()}`);
-      } else {
-        setMessage(`✗ Error: ${result.error || 'Unknown error'} - ${result.details || ''}`);
+      } catch (error) {
+        setMessage(`✗ Error: ${error.message}`);
+      } finally {
+        setImporting(false);
       }
-    } catch (error) {
-      setMessage(`✗ Error: ${error.message}`);
-    } finally {
-      setImporting(false);
+    } else {
+      // Automatic mode - sequential rotation
+      setMessage('Importing with automatic category rotation...');
+      
+      try {
+        const response = await fetch('/api/rss/import', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': '8fcb0cec763622059af59b1b541af454ff06059e9195aaf0e5616633b4e1fd27'
+          }
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+          setMessage(`✓ Imported ${result.totalImported} articles from ${result.category.toUpperCase()} category (${result.totalDuplicates} duplicates skipped). Next import: ${result.nextCategory.toUpperCase()}`);
+        } else {
+          setMessage(`✗ Error: ${result.error || 'Unknown error'} - ${result.details || ''}`);
+        }
+      } catch (error) {
+        setMessage(`✗ Error: ${error.message}`);
+      } finally {
+        setImporting(false);
+      }
     }
   };
 
@@ -176,13 +207,42 @@ export default function RSSFeedsPage() {
               }}
             />
           </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <label style={{ fontSize: '0.875rem', fontWeight: '500' }}>
+              Category (optional):
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              style={{
+                padding: '0.5rem',
+                borderRadius: '4px',
+                border: '1px solid var(--border-medium)',
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                minWidth: '150px'
+              }}
+            >
+              <option value="">Auto (Sequential)</option>
+              <option value="news">News</option>
+              <option value="technology">Technology</option>
+              <option value="business">Business</option>
+              <option value="featured">Featured</option>
+              <option value="reviews">Reviews</option>
+              <option value="lifestyle">Lifestyle</option>
+              <option value="videos">Videos</option>
+              <option value="podcasts">Podcasts</option>
+            </select>
+          </div>
+          
           <button
             onClick={handleImportAll}
             disabled={importing}
             className={styles.button}
             style={{ backgroundColor: '#22c55e' }}
           >
-            {importing ? 'Importing...' : 'Import from All Feeds'}
+            {importing ? 'Importing...' : selectedCategory ? `Import from ${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}` : 'Import (Auto Rotate)'}
           </button>
           <button
             onClick={() => {
@@ -283,7 +343,8 @@ export default function RSSFeedsPage() {
       <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '8px' }}>
         <h2 style={{ marginBottom: '1rem' }}>Configured Feeds</h2>
         <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          Auto-import runs every 6 hours, rotating through categories (News → Technology → Business → Featured → Reviews → Lifestyle → Videos → Podcasts → repeat)
+          Auto-import via FastCron runs every 3 hours, rotating through categories (News → Technology → Business → Featured → Reviews → Lifestyle → Videos → Podcasts → repeat). 
+          <a href="/FASTCRON_SETUP.md" target="_blank" style={{ color: 'var(--primary)', marginLeft: '0.5rem' }}>Setup Guide →</a>
         </p>
         
         {feeds.length === 0 ? (

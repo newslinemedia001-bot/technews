@@ -7,7 +7,8 @@ import WeatherWidget from '@/components/WeatherWidget';
 import NewsletterWidget from '@/components/NewsletterWidget/NewsletterWidget';
 import styles from './page.module.css';
 
-export const revalidate = 60; // Revalidate every 60 seconds
+export const dynamic = 'force-dynamic';
+// export const revalidate = 0; // Ensure fresh data on every request
 
 // Helper to serialize Firebase timestamps
 function serializeArticles(articles) {

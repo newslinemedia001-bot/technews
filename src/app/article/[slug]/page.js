@@ -21,11 +21,17 @@ export async function generateMetadata({ params }) {
 
     const siteUrl = 'https://technews.co.ke';
     const description = article.excerpt || article.summary || stripHtml(article.content).substring(0, 160);
-    const imageUrl = article.featuredImage || `${siteUrl}/logo.png`;
+    
+    // Ensure image URL is absolute
+    let imageUrl = article.featuredImage || `${siteUrl}/logo.png`;
+    if (imageUrl && !imageUrl.startsWith('http')) {
+        imageUrl = `${siteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+    }
 
     return {
         title: `${article.title} - TechNews`,
         description: description,
+        metadataBase: new URL(siteUrl),
         openGraph: {
             type: 'article',
             title: article.title,
@@ -38,6 +44,7 @@ export async function generateMetadata({ params }) {
                     width: 1200,
                     height: 630,
                     alt: article.title,
+                    type: 'image/jpeg',
                 }
             ],
             publishedTime: article.createdAt?.toDate?.().toISOString() || new Date(article.createdAt).toISOString(),
@@ -50,6 +57,8 @@ export async function generateMetadata({ params }) {
             title: article.title,
             description: description,
             images: [imageUrl],
+            creator: '@TechNews',
+            site: '@TechNews',
         },
     };
 }
