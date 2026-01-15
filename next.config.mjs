@@ -99,6 +99,18 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'static01.nyt.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.nyt.com',
+        port: '',
+        pathname: '/**',
+      },
       // Wildcard for any other RSS sources
       {
         protocol: 'https',

@@ -48,8 +48,8 @@ export const defaultFeeds = [
     enabled: true
   },
   {
-    name: 'Ars Technica',
-    url: 'https://feeds.arstechnica.com/arstechnica/index',
+    name: 'TechNewsWorld',
+    url: 'https://www.technewsworld.com/perl/syndication/rssfull.pl',
     category: 'technology',
     enabled: true
   },
@@ -66,20 +66,26 @@ export const defaultFeeds = [
     category: 'business',
     enabled: true
   },
-  // Featured (was Sports)
   {
-    name: 'ESPN',
-    url: 'https://www.espn.com/espn/rss/news',
+    name: 'Financial Times',
+    url: 'https://www.ft.com/?format=rss',
+    category: 'business',
+    enabled: true
+  },
+  // Featured
+  {
+    name: 'The Guardian',
+    url: 'https://www.theguardian.com/world/rss',
     category: 'featured',
     enabled: true
   },
   {
-    name: 'BBC Sport',
-    url: 'http://feeds.bbci.co.uk/sport/rss.xml',
+    name: 'Associated Press',
+    url: 'https://apnews.com/apf-topnews',
     category: 'featured',
     enabled: true
   },
-  // Reviews (was Opinion)
+  // Reviews
   {
     name: 'The Guardian Opinion',
     url: 'https://www.theguardian.com/uk/commentisfree/rss',
@@ -89,6 +95,12 @@ export const defaultFeeds = [
   {
     name: 'New York Times Opinion',
     url: 'https://rss.nytimes.com/services/xml/rss/nyt/Opinion.xml',
+    category: 'reviews',
+    enabled: true
+  },
+  {
+    name: 'CNET Reviews',
+    url: 'https://www.cnet.com/rss/reviews/',
     category: 'reviews',
     enabled: true
   },
@@ -105,10 +117,22 @@ export const defaultFeeds = [
     category: 'lifestyle',
     enabled: true
   },
+  {
+    name: 'GQ',
+    url: 'https://www.gq.com/feed/rss',
+    category: 'lifestyle',
+    enabled: true
+  },
   // Videos
   {
-    name: 'YouTube Tech',
-    url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCBJycsmduvYEL83R_U4JriQ',
+    name: 'Vimeo Staff Picks',
+    url: 'https://vimeo.com/channels/staffpicks/videos/rss',
+    category: 'videos',
+    enabled: true
+  },
+  {
+    name: 'TED Talks',
+    url: 'https://www.ted.com/talks/rss',
     category: 'videos',
     enabled: true
   },
@@ -122,6 +146,18 @@ export const defaultFeeds = [
   {
     name: 'The Daily',
     url: 'https://feeds.simplecast.com/54nAGcIl',
+    category: 'podcasts',
+    enabled: true
+  },
+  {
+    name: 'This American Life',
+    url: 'https://www.thisamericanlife.org/podcast/rss.xml',
+    category: 'podcasts',
+    enabled: true
+  },
+  {
+    name: 'Serial',
+    url: 'https://feeds.serialpodcast.org/serial',
     category: 'podcasts',
     enabled: true
   }

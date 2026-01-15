@@ -15,26 +15,82 @@ const merriweather = Merriweather({
 });
 
 export const metadata = {
-  title: 'TechNews - Your Source for Tech & Business News',
-  description: 'Stay updated with the latest technology news, business insights, and in-depth analysis. TechNews delivers breaking news and expert opinions on tech, startups, and innovation.',
-  keywords: 'tech news, technology, business, startups, innovation, AI, software, gadgets',
+  metadataBase: new URL('https://technews.co.ke'),
+  title: {
+    default: 'TechNews Kenya - Latest Technology, Business & Innovation News',
+    template: '%s | TechNews Kenya'
+  },
+  description: 'TechNews Kenya is your premier source for technology news, business insights, startup stories, and innovation updates. Get breaking tech news, gadget reviews, AI developments, and expert analysis from Kenya and around the world.',
+  keywords: [
+    'tech news Kenya',
+    'technology news',
+    'business news Kenya',
+    'startup news',
+    'innovation Kenya',
+    'AI news',
+    'gadget reviews',
+    'software updates',
+    'tech trends',
+    'digital transformation',
+    'Kenya tech',
+    'African technology',
+    'mobile technology',
+    'cybersecurity news',
+    'cloud computing',
+    'fintech Kenya',
+    'e-commerce Kenya',
+    'tech startups Africa'
+  ].join(', '),
+  authors: [{ name: 'TechNews Kenya Editorial Team' }],
+  creator: 'TechNews Kenya',
+  publisher: 'TechNews Kenya',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
-    title: 'TechNews - Your Source for Tech & Business News',
-    description: 'Stay updated with the latest technology news, business insights, and in-depth analysis.',
-    url: 'https://technews.co.ke',
-    siteName: 'TechNews',
-    locale: 'en_US',
     type: 'website',
+    locale: 'en_KE',
+    url: 'https://technews.co.ke',
+    siteName: 'TechNews Kenya',
+    title: 'TechNews Kenya - Latest Technology, Business & Innovation News',
+    description: 'Your premier source for technology news, business insights, startup stories, and innovation updates from Kenya and around the world.',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'TechNews Kenya Logo',
+      }
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TechNews - Your Source for Tech & Business News',
-    description: 'Stay updated with the latest technology news, business insights, and in-depth analysis.',
+    title: 'TechNews Kenya - Latest Technology, Business & Innovation News',
+    description: 'Your premier source for technology news, business insights, startup stories, and innovation updates from Kenya and around the world.',
+    creator: '@TechNewsKE',
+    site: '@TechNewsKE',
+    images: ['/logo.png'],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
+  alternates: {
+    canonical: 'https://technews.co.ke',
+  },
+  verification: {
+    google: 'your-google-verification-code', // Add your Google Search Console verification code
+  },
+  category: 'technology',
 };
 
 export default function RootLayout({ children }) {

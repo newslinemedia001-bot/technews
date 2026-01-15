@@ -141,7 +141,7 @@ export const getArticlesByCategory = async (category, limitCount = 10, lastDoc =
         where('category', '==', category),
         where('status', '==', 'published'),
         orderBy('createdAt', 'desc'),
-        limit(limitCount)
+        limit(limitCount * 2) // Fetch more to account for filtering
     );
 
     if (lastDoc) {
@@ -149,23 +149,27 @@ export const getArticlesByCategory = async (category, limitCount = 10, lastDoc =
     }
 
     const snapshot = await getDocs(q);
-    const articles = snapshot.docs.map(doc => {
-        const data = doc.data();
-        const contentPreview = data.content ? data.content.substring(0, 500) : '';
-        return {
-            id: doc.id,
-            title: data.title,
-            slug: data.slug,
-            excerpt: data.excerpt,
-            featuredImage: data.featuredImage,
-            category: data.category,
-            author: data.author,
-            createdAt: data.createdAt?.toDate?.() || new Date(),
-            views: data.views,
-            content: contentPreview, // Truncated
-            videoId: data.videoId || null
-        };
-    });
+    const articles = snapshot.docs
+        .map(doc => {
+            const data = doc.data();
+            const contentPreview = data.content ? data.content.substring(0, 500) : '';
+            return {
+                id: doc.id,
+                title: data.title,
+                slug: data.slug,
+                excerpt: data.excerpt,
+                featuredImage: data.featuredImage,
+                category: data.category,
+                author: data.author,
+                createdAt: data.createdAt?.toDate?.() || new Date(),
+                views: data.views,
+                content: contentPreview, // Truncated
+                videoId: data.videoId || null
+            };
+        })
+        .filter(article => article.featuredImage) // Only articles with images
+        .slice(0, limitCount); // Limit to requested count
+    
     const lastVisible = snapshot.docs[snapshot.docs.length - 1];
 
     return { articles, lastVisible };
@@ -177,7 +181,7 @@ export const getLatestArticles = async (limitCount = 10, lastDoc = null) => {
         collection(db, ARTICLES_COLLECTION),
         where('status', '==', 'published'),
         orderBy('createdAt', 'desc'),
-        limit(limitCount)
+        limit(limitCount * 2) // Fetch more to account for filtering
     );
 
     if (lastDoc) {
@@ -185,24 +189,28 @@ export const getLatestArticles = async (limitCount = 10, lastDoc = null) => {
     }
 
     const snapshot = await getDocs(q);
-    const articles = snapshot.docs.map(doc => {
-        const data = doc.data();
-        // Only get first 500 chars of content for reading time calc
-        const contentPreview = data.content ? data.content.substring(0, 500) : '';
-        return {
-            id: doc.id,
-            title: data.title,
-            slug: data.slug,
-            excerpt: data.excerpt,
-            featuredImage: data.featuredImage,
-            category: data.category,
-            author: data.author,
-            createdAt: data.createdAt?.toDate?.() || new Date(),
-            views: data.views,
-            content: contentPreview, // Truncated content
-            videoId: data.videoId || null
-        };
-    });
+    const articles = snapshot.docs
+        .map(doc => {
+            const data = doc.data();
+            // Only get first 500 chars of content for reading time calc
+            const contentPreview = data.content ? data.content.substring(0, 500) : '';
+            return {
+                id: doc.id,
+                title: data.title,
+                slug: data.slug,
+                excerpt: data.excerpt,
+                featuredImage: data.featuredImage,
+                category: data.category,
+                author: data.author,
+                createdAt: data.createdAt?.toDate?.() || new Date(),
+                views: data.views,
+                content: contentPreview, // Truncated content
+                videoId: data.videoId || null
+            };
+        })
+        .filter(article => article.featuredImage) // Only articles with images
+        .slice(0, limitCount); // Limit to requested count
+    
     const lastVisible = snapshot.docs[snapshot.docs.length - 1];
 
     return { articles, lastVisible };
@@ -215,26 +223,29 @@ export const getFeaturedArticles = async (limitCount = 5) => {
         where('status', '==', 'published'),
         where('featured', '==', true),
         orderBy('createdAt', 'desc'),
-        limit(limitCount)
+        limit(limitCount * 2) // Fetch more to account for filtering
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => {
-        const data = doc.data();
-        const contentPreview = data.content ? data.content.substring(0, 500) : '';
-        return {
-            id: doc.id,
-            title: data.title,
-            slug: data.slug,
-            excerpt: data.excerpt,
-            featuredImage: data.featuredImage,
-            category: data.category,
-            author: data.author,
-            createdAt: data.createdAt?.toDate?.() || new Date(),
-            views: data.views,
-            content: contentPreview // Truncated
-        };
-    });
+    return snapshot.docs
+        .map(doc => {
+            const data = doc.data();
+            const contentPreview = data.content ? data.content.substring(0, 500) : '';
+            return {
+                id: doc.id,
+                title: data.title,
+                slug: data.slug,
+                excerpt: data.excerpt,
+                featuredImage: data.featuredImage,
+                category: data.category,
+                author: data.author,
+                createdAt: data.createdAt?.toDate?.() || new Date(),
+                views: data.views,
+                content: contentPreview // Truncated
+            };
+        })
+        .filter(article => article.featuredImage) // Only articles with images
+        .slice(0, limitCount); // Limit to requested count
 };
 
 // Get trending articles (by views) - optimized with thumbnail
@@ -312,6 +323,9 @@ export const searchArticles = async (searchTerm, limitCount = 20) => {
     const results = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(article => {
+            // Must have featured image
+            if (!article.featuredImage) return false;
+            
             const titleMatch = article.title?.toLowerCase().includes(searchLower);
             const excerptMatch = article.excerpt?.toLowerCase().includes(searchLower);
             const contentMatch = article.content?.toLowerCase().includes(searchLower);

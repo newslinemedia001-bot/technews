@@ -10,6 +10,21 @@ import styles from './page.module.css';
 export const dynamic = 'force-dynamic';
 // export const revalidate = 0; // Ensure fresh data on every request
 
+export const metadata = {
+  title: 'TechNews Kenya - Latest Technology, Business & Innovation News',
+  description: 'Stay updated with breaking technology news, business insights, startup stories, gadget reviews, and innovation updates from Kenya and around the world. Your trusted source for tech news.',
+  keywords: 'tech news Kenya, technology news, business news, startup news, innovation, AI, gadgets, software, Kenya tech, African technology',
+  openGraph: {
+    title: 'TechNews Kenya - Latest Technology, Business & Innovation News',
+    description: 'Stay updated with breaking technology news, business insights, startup stories, and innovation updates from Kenya and around the world.',
+    type: 'website',
+    url: 'https://technews.co.ke',
+  },
+  alternates: {
+    canonical: 'https://technews.co.ke',
+  },
+};
+
 // Helper to serialize Firebase timestamps
 function serializeArticles(articles) {
   if (!articles) return [];
@@ -59,20 +74,37 @@ export default async function HomePage() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'NewsMediaOrganization',
-    name: 'TechNews',
+    name: 'TechNews Kenya',
+    alternateName: 'TechNews',
     url: 'https://technews.co.ke',
-    logo: 'https://technews.co.ke/logo.png',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://technews.co.ke/logo.png',
+      width: 600,
+      height: 600
+    },
+    description: 'Premier source for technology news, business insights, and innovation updates from Kenya and around the world',
     sameAs: [
-      'https://facebook.com/technews',
-      'https://twitter.com/technews',
-      'https://youtube.com/technews'
+      'https://facebook.com/technewske',
+      'https://twitter.com/technewske',
+      'https://youtube.com/technewske',
+      'https://instagram.com/technewske',
+      'https://linkedin.com/company/technewske'
     ],
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+254-742-577-038',
       contactType: 'customer service',
-      areaServed: 'KE'
-    }
+      areaServed: 'KE',
+      availableLanguage: ['English']
+    },
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'KE',
+      addressLocality: 'Nairobi'
+    },
+    foundingDate: '2024',
+    keywords: 'technology news, business news, innovation, startups, Kenya tech, African technology'
   };
 
   return (
@@ -349,7 +381,7 @@ export default async function HomePage() {
                       <Link href={`/category/${category.slug}`} className={styles.categoryLink}>
                         {category.name}
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="m9 18 6-6-6-6" />
+                          <path d="m 9 18 6-6-6-6" />
                         </svg>
                       </Link>
                     </li>
