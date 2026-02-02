@@ -13,126 +13,102 @@ const parser = new Parser({
   }
 });
 
-// Default RSS feeds - ALL categories covered
+// Default RSS feeds - Kenyan tech news sources
 export const defaultFeeds = [
   // News
   {
-    name: 'CNN',
-    url: 'http://rss.cnn.com/rss/edition.rss',
+    name: 'The Star Kenya',
+    url: 'https://www.the-star.co.ke/feed',
     category: 'news',
     enabled: true
   },
   {
-    name: 'BBC News',
-    url: 'http://feeds.bbci.co.uk/news/rss.xml',
-    category: 'news',
-    enabled: true
-  },
-  {
-    name: 'Reuters',
-    url: 'https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best',
+    name: 'Kenyans.co.ke',
+    url: 'https://www.kenyans.co.ke/feed',
     category: 'news',
     enabled: true
   },
   // Technology
-  {
-    name: 'TechCrunch',
-    url: 'https://techcrunch.com/feed/',
-    category: 'technology',
-    enabled: true
-  },
-  {
-    name: 'The Verge',
-    url: 'https://www.theverge.com/rss/index.xml',
-    category: 'technology',
-    enabled: true
-  },
   {
     name: 'TechNewsWorld',
     url: 'https://www.technewsworld.com/perl/syndication/rssfull.pl',
     category: 'technology',
     enabled: true
   },
+  {
+    name: 'Techweez',
+    url: 'https://techweez.com/feed/',
+    category: 'technology',
+    enabled: true
+  },
+  {
+    name: 'TechTrends KE',
+    url: 'https://techtrendske.co.ke/feed/',
+    category: 'technology',
+    enabled: true
+  },
   // Business
   {
-    name: 'BBC Business',
-    url: 'http://feeds.bbci.co.uk/news/business/rss.xml',
+    name: 'The Star Business',
+    url: 'https://www.the-star.co.ke/business/feed',
     category: 'business',
     enabled: true
   },
   {
-    name: 'Bloomberg',
-    url: 'https://www.bloomberg.com/feed/podcast/etf-report.xml',
-    category: 'business',
-    enabled: true
-  },
-  {
-    name: 'Financial Times',
-    url: 'https://www.ft.com/?format=rss',
+    name: 'Kenyans Business',
+    url: 'https://www.kenyans.co.ke/business/feed',
     category: 'business',
     enabled: true
   },
   // Featured
   {
-    name: 'The Guardian',
-    url: 'https://www.theguardian.com/world/rss',
+    name: 'Tech-ish',
+    url: 'https://tech-ish.com/feed/',
     category: 'featured',
     enabled: true
   },
   {
-    name: 'Associated Press',
-    url: 'https://apnews.com/apf-topnews',
+    name: 'Techweez Featured',
+    url: 'https://techweez.com/feed/',
     category: 'featured',
     enabled: true
   },
   // Reviews
   {
-    name: 'The Guardian Opinion',
-    url: 'https://www.theguardian.com/uk/commentisfree/rss',
+    name: 'Techweez Reviews',
+    url: 'https://techweez.com/category/reviews/feed/',
     category: 'reviews',
     enabled: true
   },
   {
-    name: 'New York Times Opinion',
-    url: 'https://rss.nytimes.com/services/xml/rss/nyt/Opinion.xml',
-    category: 'reviews',
-    enabled: true
-  },
-  {
-    name: 'CNET Reviews',
-    url: 'https://www.cnet.com/rss/reviews/',
+    name: 'TechTrends Reviews',
+    url: 'https://techtrendske.co.ke/feed/',
     category: 'reviews',
     enabled: true
   },
   // Lifestyle
   {
-    name: 'Lifehacker',
-    url: 'https://lifehacker.com/rss',
+    name: 'The Star Lifestyle',
+    url: 'https://www.the-star.co.ke/lifestyle/feed',
     category: 'lifestyle',
     enabled: true
   },
   {
-    name: 'Vogue',
-    url: 'https://www.vogue.com/feed/rss',
-    category: 'lifestyle',
-    enabled: true
-  },
-  {
-    name: 'GQ',
-    url: 'https://www.gq.com/feed/rss',
+    name: 'Kenyans Lifestyle',
+    url: 'https://www.kenyans.co.ke/lifestyle/feed',
     category: 'lifestyle',
     enabled: true
   },
   // Videos
   {
-    name: 'Vimeo Staff Picks',
-    url: 'https://vimeo.com/channels/staffpicks/videos/rss',
+    name: 'TED Talks',
+    url: 'https://www.ted.com/talks/rss',
     category: 'videos',
     enabled: true
   },
   {
-    name: 'TED Talks',
-    url: 'https://www.ted.com/talks/rss',
+    name: 'Vimeo Staff Picks',
+    url: 'https://vimeo.com/channels/staffpicks/videos/rss',
     category: 'videos',
     enabled: true
   },
@@ -146,18 +122,6 @@ export const defaultFeeds = [
   {
     name: 'The Daily',
     url: 'https://feeds.simplecast.com/54nAGcIl',
-    category: 'podcasts',
-    enabled: true
-  },
-  {
-    name: 'This American Life',
-    url: 'https://www.thisamericanlife.org/podcast/rss.xml',
-    category: 'podcasts',
-    enabled: true
-  },
-  {
-    name: 'Serial',
-    url: 'https://feeds.serialpodcast.org/serial',
     category: 'podcasts',
     enabled: true
   }
@@ -347,7 +311,7 @@ export async function importArticle(item, feedName, category) {
       // If still too short, add a read more section
       if (paragraphs.length < 3 || textOnly.length < 400) {
         paragraphs.push(`<p><strong>This article continues with more details and analysis.</strong></p>`);
-        paragraphs.push(`<p><a href="${item.link}" target="_blank" rel="noopener noreferrer">Read the complete article on ${feedName} →</a></p>`);
+        paragraphs.push(`<p><a href="${item.link}" target="_blank" rel="noopener noreferrer" class="read-full-article-link">Read the complete article on ${feedName} →</a></p>`);
       }
       
       content = paragraphs.join('\n\n');

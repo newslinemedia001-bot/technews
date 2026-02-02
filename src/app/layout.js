@@ -1,4 +1,5 @@
 import { Inter, Merriweather } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -102,7 +103,11 @@ export default function RootLayout({ children }) {
         <link rel="shortcut icon" href="/logo.png" />
         <link rel="apple-touch-icon" href="/logo.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <script
+      </head>
+      <body className={inter.className} suppressHydrationWarning>
+        <Script
+          id="theme-script"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               try {
@@ -112,9 +117,12 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5672747362546507" crossOrigin="anonymous"></script>
-      </head>
-      <body className={inter.className}>
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5672747362546507"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <Header />
         <main>
           {children}

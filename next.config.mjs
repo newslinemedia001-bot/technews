@@ -111,10 +111,96 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      // Kenyan news sites
+      {
+        protocol: 'https',
+        hostname: 'techweez.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.techweez.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'techtrendske.co.ke',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.techtrendske.co.ke',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'tech-ish.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.tech-ish.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'the-star.co.ke',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.the-star.co.ke',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'kenyans.co.ke',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.kenyans.co.ke',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'technewsworld.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.technewsworld.com',
+        port: '',
+        pathname: '/**',
+      },
       // Wildcard for any other RSS sources
       {
         protocol: 'https',
         hostname: '**.wp.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.gq.com',
+        port: '',
+        pathname: '/**',
+      },
+      // Allow any HTTPS image (for legacy articles)
+      {
+        protocol: 'https',
+        hostname: '**',
         port: '',
         pathname: '/**',
       },
