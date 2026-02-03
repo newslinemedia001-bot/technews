@@ -141,7 +141,7 @@ export const getArticlesByCategory = async (category, limitCount = 10, lastDoc =
         where('category', '==', category),
         where('status', '==', 'published'),
         orderBy('createdAt', 'desc'),
-        limit(limitCount * 2) // Fetch more to account for filtering
+        limit(limitCount * 5) // Fetch 5x more to account for filtering
     );
 
     if (lastDoc) {
@@ -167,7 +167,7 @@ export const getArticlesByCategory = async (category, limitCount = 10, lastDoc =
                 videoId: data.videoId || null
             };
         })
-        .filter(article => article.featuredImage) // Only articles with images
+        .filter(article => article.featuredImage && article.featuredImage.trim() !== '') // Only articles with valid images
         .slice(0, limitCount); // Limit to requested count
     
     const lastVisible = snapshot.docs[snapshot.docs.length - 1];
@@ -281,21 +281,19 @@ export const incrementViews = async (articleId) => {
 };
 
 // Get all articles (for admin)
-export const getAllArticles = async (statusFilter = null, limitCount = 1000) => {
+export const getAllArticles = async (statusFilter = null) => {
     let q;
 
     if (statusFilter) {
         q = query(
             collection(db, ARTICLES_COLLECTION),
             where('status', '==', statusFilter),
-            orderBy('createdAt', 'desc'),
-            limit(limitCount)
+            orderBy('createdAt', 'desc')
         );
     } else {
         q = query(
             collection(db, ARTICLES_COLLECTION),
-            orderBy('createdAt', 'desc'),
-            limit(limitCount)
+            orderBy('createdAt', 'desc')
         );
     }
 
