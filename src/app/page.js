@@ -68,11 +68,11 @@ export default async function HomePage() {
     videoArticles
   ] = await Promise.all([
     getFeaturedArticles(1),
-    getLatestArticles(20), // Increased from 8
-    getTrendingArticles(10), // Increased from 5
-    getArticlesByCategory('technology', 15), // Increased from 4
-    getArticlesByCategory('business', 15), // Increased from 4
-    getArticlesByCategory('lifestyle', 10), // Increased from 4
+    getLatestArticles(30), // Fetch more to ensure enough with images
+    getTrendingArticles(15), // Fetch more to ensure enough with images
+    getArticlesByCategory('technology', 25), // Fetch more to ensure enough with images
+    getArticlesByCategory('business', 25), // Fetch more to ensure enough with images
+    getArticlesByCategory('lifestyle', 20), // Fetch more to ensure enough with images
     getArticlesByCategory('reviews', 10), // Increased from 4
     getArticlesByCategory('videos', 10) // Increased from 4
   ]);
