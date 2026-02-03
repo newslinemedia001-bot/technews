@@ -45,7 +45,12 @@ export default async function SubcategoryPage({ params }) {
     try {
         const categoryId = `${parentCategory.id}/${subcategory.id}`;
         const result = await getArticlesByCategory(categoryId, 24);
-        articles = result.articles;
+        // Filter out articles without featured images or with placeholders
+        articles = (result.articles || []).filter(article =>
+            article.featuredImage &&
+            article.featuredImage.trim() !== '' &&
+            !article.featuredImage.includes('via.placeholder.com')
+        );
     } catch (error) {
         console.error('Error fetching subcategory articles:', error);
     }

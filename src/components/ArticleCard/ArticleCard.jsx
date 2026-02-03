@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
 import { formatRelativeDate, calculateReadingTime, truncateText, stripHtml } from '@/lib/utils';
 import { getCategoryById } from '@/lib/categories';
 import styles from './ArticleCard.module.css';
@@ -17,7 +18,10 @@ export default function ArticleCard({
     titleLineClamp = null, // Optional line clamp for titles
     lightText = false // Force light text for dark backgrounds
 }) {
+    const [imageError, setImageError] = useState(false);
+
     if (!article) return null;
+    if (imageError) return null; // Hide card if image fails to load
 
     const category = getCategoryById(article.category);
     const categoryName = category?.name || article.category;
@@ -38,6 +42,7 @@ export default function ArticleCard({
                                     fill
                                     style={{ objectFit: 'cover' }}
                                     sizes="(max-width: 768px) 100vw, 50vw"
+                                    onError={() => setImageError(true)}
                                 />
                                 {article.videoId && (
                                     <div className={styles.playButton}>
@@ -96,6 +101,7 @@ export default function ArticleCard({
                             fill
                             style={{ objectFit: 'cover' }}
                             sizes="150px"
+                            onError={() => setImageError(true)}
                         />
                     ) : (
                         <div className={styles.imagePlaceholder}>
@@ -138,6 +144,7 @@ export default function ArticleCard({
                                 fill
                                 style={{ objectFit: 'cover' }}
                                 sizes="80px"
+                                onError={() => setImageError(true)}
                             />
                             {article.videoId && (
                                 <div className={styles.minimalPlayIcon}>
@@ -188,6 +195,7 @@ export default function ArticleCard({
                                 fill
                                 style={{ objectFit: 'cover' }}
                                 sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 25vw"
+                                onError={() => setImageError(true)}
                             />
                             {article.videoId && (
                                 <div className={styles.playButton}>

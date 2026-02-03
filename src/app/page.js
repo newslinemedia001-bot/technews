@@ -26,7 +26,7 @@ export const metadata = {
 };
 
 // Helper to serialize Firebase timestamps
-function serializeArticles(articles) {
+function prepareArticles(articles) {
   if (!articles) return [];
   return articles.map(article => ({
     ...article,
@@ -36,8 +36,27 @@ function serializeArticles(articles) {
   }));
 }
 
+// Helper to filter articles with valid images
+function filterArticlesWithImages(articles) {
+  if (!articles) return [];
+  return articles.filter(article =>
+    article.featuredImage &&
+    article.featuredImage.trim() !== '' &&
+    !article.featuredImage.includes('via.placeholder.com')
+  );
+}
+
+// Helper to filter valid articles (excluding placeholders but allowing no image)
+function filterValidArticles(articles) {
+  if (!articles) return [];
+  return articles.filter(article =>
+    !article.featuredImage ||
+    !article.featuredImage.includes('via.placeholder.com')
+  );
+}
+
 export default async function HomePage() {
-  // Fetch all data in parallel
+  // Fetch all data in parallel - fetching MORE to ensure we have enough after filtering
   const [
     featuredArticles,
     latestResult,
@@ -49,24 +68,41 @@ export default async function HomePage() {
     videoArticles
   ] = await Promise.all([
     getFeaturedArticles(1),
-    getLatestArticles(8),
-    getTrendingArticles(5),
-    getArticlesByCategory('technology', 4),
-    getArticlesByCategory('business', 4),
-    getArticlesByCategory('lifestyle', 4),
-    getArticlesByCategory('reviews', 4),
-    getArticlesByCategory('videos', 4)
+    getLatestArticles(20), // Increased from 8
+    getTrendingArticles(10), // Increased from 5
+    getArticlesByCategory('technology', 15), // Increased from 4
+    getArticlesByCategory('business', 15), // Increased from 4
+    getArticlesByCategory('lifestyle', 10), // Increased from 4
+    getArticlesByCategory('reviews', 10), // Increased from 4
+    getArticlesByCategory('videos', 10) // Increased from 4
   ]);
 
-  const serializedFeatured = serializeArticles(featuredArticles);
-  const serializedTrending = serializeArticles(trendingArticles);
-  const latestArticles = serializeArticles(latestResult?.articles || []);
+  const serializedFeatured = prepareArticles(featuredArticles);
+
+  // Process lists with strict image filtering for most sections
+  const rawLatest = prepareArticles(latestResult?.articles || []);
+  const latestArticles = filterArticlesWithImages(rawLatest);
+
+  const rawTrending = prepareArticles(trendingArticles);
+  const serializedTrending = filterArticlesWithImages(rawTrending);
+
+  // Category specific processing
+  const rawTech = prepareArticles(techArticles?.articles || []);
+  const rawBiz = prepareArticles(bizArticles?.articles || []);
+  const rawLifestyle = prepareArticles(lifestyleArticles?.articles || []);
+  const rawReviews = prepareArticles(reviewsArticles?.articles || []);
+  const rawVideos = prepareArticles(videoArticles?.articles || []);
+
   const categoryArticles = {
-    technology: serializeArticles(techArticles?.articles || []),
-    business: serializeArticles(bizArticles?.articles || []),
-    lifestyle: serializeArticles(lifestyleArticles?.articles || []),
-    reviews: serializeArticles(reviewsArticles?.articles || []),
-    videos: serializeArticles(videoArticles?.articles || [])
+    // Technology is special: Hero allows text-only, Main section requires images
+    technologyHero: filterValidArticles(rawTech),
+    technology: filterArticlesWithImages(rawTech),
+
+    // Others require images
+    business: filterArticlesWithImages(rawBiz),
+    lifestyle: filterArticlesWithImages(rawLifestyle),
+    reviews: filterArticlesWithImages(rawReviews),
+    videos: filterArticlesWithImages(rawVideos)
   };
 
   const hasArticles = (latestArticles.length > 0) || (serializedFeatured.length > 0);
@@ -136,7 +172,7 @@ export default async function HomePage() {
               <div className={`${styles.heroSide} ${styles.technologySide}`}>
                 <h3 className={styles.heroSideTitle}>Technology</h3>
                 <div className={styles.heroSideContent}>
-                  {categoryArticles['technology']?.slice(0, 4).map((article) => (
+                  {categoryArticles['technologyHero']?.slice(0, 4).map((article) => (
                     <ArticleCard
                       key={article.id}
                       article={article}

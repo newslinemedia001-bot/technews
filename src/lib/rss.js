@@ -36,12 +36,6 @@ export const defaultFeeds = [
     enabled: true
   },
   {
-    name: 'Techweez',
-    url: 'https://techweez.com/feed/',
-    category: 'technology',
-    enabled: true
-  },
-  {
     name: 'TechTrends KE',
     url: 'https://techtrendske.co.ke/feed/',
     category: 'technology',
@@ -67,19 +61,7 @@ export const defaultFeeds = [
     category: 'featured',
     enabled: true
   },
-  {
-    name: 'Techweez Featured',
-    url: 'https://techweez.com/feed/',
-    category: 'featured',
-    enabled: true
-  },
   // Reviews
-  {
-    name: 'Techweez Reviews',
-    url: 'https://techweez.com/category/reviews/feed/',
-    category: 'reviews',
-    enabled: true
-  },
   {
     name: 'TechTrends Reviews',
     url: 'https://techtrendske.co.ke/feed/',
@@ -91,38 +73,6 @@ export const defaultFeeds = [
     name: 'The Star Lifestyle',
     url: 'https://www.the-star.co.ke/lifestyle/feed',
     category: 'lifestyle',
-    enabled: true
-  },
-  {
-    name: 'Kenyans Lifestyle',
-    url: 'https://www.kenyans.co.ke/lifestyle/feed',
-    category: 'lifestyle',
-    enabled: true
-  },
-  // Videos
-  {
-    name: 'TED Talks',
-    url: 'https://www.ted.com/talks/rss',
-    category: 'videos',
-    enabled: true
-  },
-  {
-    name: 'Vimeo Staff Picks',
-    url: 'https://vimeo.com/channels/staffpicks/videos/rss',
-    category: 'videos',
-    enabled: true
-  },
-  // Podcasts
-  {
-    name: 'NPR Podcasts',
-    url: 'https://www.npr.org/rss/podcast.php?id=510318',
-    category: 'podcasts',
-    enabled: true
-  },
-  {
-    name: 'The Daily',
-    url: 'https://feeds.simplecast.com/54nAGcIl',
-    category: 'podcasts',
     enabled: true
   }
 ];
@@ -141,7 +91,7 @@ export async function fetchRSSFeed(feedUrl) {
 // Extract image from RSS item - prefer high quality
 function extractImage(item) {
   const images = [];
-  
+
   // Try media:content (often has multiple sizes)
   if (item.mediaContent) {
     if (Array.isArray(item.mediaContent)) {
@@ -155,7 +105,7 @@ function extractImage(item) {
       images.push({ url: item.mediaContent.$.url, width: parseInt(item.mediaContent.$.width) || 0 });
     }
   }
-  
+
   // Try media:thumbnail
   if (item.mediaThumbnail) {
     if (Array.isArray(item.mediaThumbnail)) {
@@ -169,12 +119,12 @@ function extractImage(item) {
       images.push({ url: item.mediaThumbnail.$.url, width: parseInt(item.mediaThumbnail.$.width) || 0 });
     }
   }
-  
+
   // Try enclosure
   if (item.enclosure && item.enclosure.url && item.enclosure.type && item.enclosure.type.startsWith('image')) {
     images.push({ url: item.enclosure.url, width: 0 });
   }
-  
+
   // Try iTunes image (common in podcast feeds)
   if (item.itunes && item.itunes.image) {
     const imageUrl = typeof item.itunes.image === 'string' ? item.itunes.image : item.itunes.image.href || item.itunes.image.$?.href;
@@ -182,7 +132,7 @@ function extractImage(item) {
       images.push({ url: imageUrl, width: 1000 }); // iTunes images are usually high quality
     }
   }
-  
+
   // Extract from content:encoded
   if (item.contentEncoded || item['content:encoded']) {
     const content = item.contentEncoded || item['content:encoded'];
@@ -198,7 +148,7 @@ function extractImage(item) {
       }
     }
   }
-  
+
   // Extract from content
   if (item.content) {
     const imgMatches = item.content.matchAll(/<img[^>]+src=["']([^"'>]+)["'][^>]*>/gi);
@@ -211,7 +161,7 @@ function extractImage(item) {
       }
     }
   }
-  
+
   // Extract from description
   if (item.description) {
     const imgMatches = item.description.matchAll(/<img[^>]+src=["']([^"'>]+)["'][^>]*>/gi);
@@ -222,13 +172,13 @@ function extractImage(item) {
       }
     }
   }
-  
+
   // Sort by width (prefer larger images) and return the best one
   if (images.length > 0) {
     images.sort((a, b) => b.width - a.width);
     return images[0].url;
   }
-  
+
   return null;
 }
 
@@ -260,7 +210,7 @@ export async function importArticle(item, feedName, category) {
     const slug = generateSlug(item.title);
     let image = extractImage(item);
     let videoId = null;
-    
+
     // Check if it's a YouTube video and extract video ID
     // YouTube RSS feeds use format: https://www.youtube.com/watch?v=VIDEO_ID
     if (item.link && (item.link.includes('youtube.com') || item.link.includes('youtu.be'))) {
@@ -271,16 +221,16 @@ export async function importArticle(item, feedName, category) {
         image = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
       }
     }
-    
+
     // Also check the ID field that YouTube RSS feeds provide
     if (!videoId && item.id && item.id.includes('yt:video:')) {
       videoId = item.id.replace('yt:video:', '');
       image = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
     }
-    
+
     // Get the best content available - try multiple sources
     let content = item['content:encoded'] || item.contentEncoded || item.content || item.description || item.summary || '';
-    
+
     // Clean and format content
     if (content) {
       // Remove script and style tags
@@ -290,15 +240,15 @@ export async function importArticle(item, feedName, category) {
       content = content.replace(/<img[^>]*feedburner[^>]*>/gi, '');
       content = content.replace(/<a[^>]*feedburner[^>]*>.*?<\/a>/gi, '');
     }
-    
+
     // Get text-only version for length checking
     const textOnly = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-    
+
     // Ensure content has at least 3 paragraphs (minimum 600 characters)
     if (textOnly.length < 600) {
       // Split existing content into sentences
       const sentences = textOnly.match(/[^.!?]+[.!?]+/g) || [textOnly];
-      
+
       // Create paragraphs from sentences (2-3 sentences per paragraph)
       const paragraphs = [];
       for (let i = 0; i < sentences.length; i += 2) {
@@ -307,13 +257,13 @@ export async function importArticle(item, feedName, category) {
           paragraphs.push(`<p>${paragraph}</p>`);
         }
       }
-      
+
       // If still too short, add a read more section
       if (paragraphs.length < 3 || textOnly.length < 400) {
         paragraphs.push(`<p><strong>This article continues with more details and analysis.</strong></p>`);
         paragraphs.push(`<p><a href="${item.link}" target="_blank" rel="noopener noreferrer" class="read-full-article-link">Read the complete article on ${feedName} →</a></p>`);
       }
-      
+
       content = paragraphs.join('\n\n');
     } else {
       // Content is good, just ensure it's wrapped in paragraphs if not already
@@ -323,27 +273,15 @@ export async function importArticle(item, feedName, category) {
         content = paragraphs.map(p => `<p>${p.trim()}</p>`).join('\n\n');
       }
     }
-    
+
     // Create excerpt from content
     const excerptText = textOnly.substring(0, 300) + (textOnly.length > 300 ? '...' : '');
-    
-    // CRITICAL: Ensure image exists - use placeholder if none found
+
+    // CRITICAL: Ensure image exists - if none found, keep it null so it can be filtered out display-side
     if (!image || image.trim() === '') {
-      // Generate category-specific placeholder
-      const categoryColors = {
-        news: '2563eb',
-        technology: '7c3aed',
-        business: '059669',
-        featured: 'dc2626',
-        reviews: 'ea580c',
-        lifestyle: 'db2777',
-        videos: 'be123c',
-        podcasts: '0891b2'
-      };
-      const color = categoryColors[category] || '1a1a1a';
-      image = `https://via.placeholder.com/1200x630/${color}/ffffff?text=${encodeURIComponent(feedName)}`;
+      image = null;
     }
-    
+
     const articleData = {
       title: item.title,
       slug: slug,
@@ -366,7 +304,7 @@ export async function importArticle(item, feedName, category) {
 
     const docRef = await addDoc(collection(db, 'articles'), articleData);
     console.log(`Imported article: ${item.title} (${textOnly.length} chars)${videoId ? ' [VIDEO]' : ''}${!extractImage(item) ? ' [PLACEHOLDER IMG]' : ''}`);
-    
+
     return { success: true, id: docRef.id, title: item.title };
   } catch (error) {
     console.error(`Error importing article ${item.title}:`, error);
@@ -379,15 +317,15 @@ export async function importFromFeed(feedUrl, feedName, category, limit = 5) {
   try {
     const feed = await fetchRSSFeed(feedUrl);
     const results = [];
-    
+
     // Limit number of articles to import
     const items = feed.items.slice(0, limit);
-    
+
     for (const item of items) {
       const result = await importArticle(item, feedName, category);
       results.push(result);
     }
-    
+
     return {
       success: true,
       feedName,
@@ -409,43 +347,43 @@ export async function importFromFeed(feedUrl, feedName, category, limit = 5) {
 // Import from all enabled feeds with category rotation
 export async function importFromAllFeeds() {
   const feeds = await getEnabledFeeds();
-  
+
   // Get last imported category from Firebase
   const { doc, getDoc, setDoc } = await import('firebase/firestore');
   const settingsRef = doc(db, 'settings', 'rssRotation');
   const settingsDoc = await getDoc(settingsRef);
-  
+
   // All your categories
   const categories = ['news', 'technology', 'business', 'featured', 'reviews', 'lifestyle', 'videos', 'podcasts'];
   let currentCategoryIndex = 0;
-  
+
   if (settingsDoc.exists()) {
     const lastCategory = settingsDoc.data().lastCategory;
     const lastIndex = categories.indexOf(lastCategory);
     currentCategoryIndex = (lastIndex + 1) % categories.length;
   }
-  
+
   const currentCategory = categories[currentCategoryIndex];
-  
+
   // Filter feeds by current category
   const categoryFeeds = feeds.filter(feed => feed.category === currentCategory);
-  
+
   const results = [];
-  
+
   if (categoryFeeds.length > 0) {
     for (const feed of categoryFeeds) {
       const result = await importFromFeed(feed.url, feed.name, feed.category, 5);
       results.push(result);
     }
   }
-  
+
   // Save current category for next rotation
   await setDoc(settingsRef, {
     lastCategory: currentCategory,
     lastRun: new Date(),
     nextCategory: categories[(currentCategoryIndex + 1) % categories.length]
   });
-  
+
   return {
     category: currentCategory,
     nextCategory: categories[(currentCategoryIndex + 1) % categories.length],
@@ -456,10 +394,10 @@ export async function importFromAllFeeds() {
 // Import from specific category (MANUAL MODE)
 export async function importFromCategoryFeeds(category) {
   const feeds = await getEnabledFeeds();
-  
+
   // Filter feeds by requested category
   const categoryFeeds = feeds.filter(feed => feed.category === category);
-  
+
   if (categoryFeeds.length === 0) {
     return {
       category: category,
@@ -467,14 +405,14 @@ export async function importFromCategoryFeeds(category) {
       message: `No enabled feeds found for category: ${category}`
     };
   }
-  
+
   const results = [];
-  
+
   for (const feed of categoryFeeds) {
     const result = await importFromFeed(feed.url, feed.name, feed.category, 5);
     results.push(result);
   }
-  
+
   return {
     category: category,
     results
@@ -487,12 +425,12 @@ export async function getEnabledFeeds() {
     const feedsRef = collection(db, 'rssFeeds');
     const q = query(feedsRef, where('enabled', '==', true));
     const snapshot = await getDocs(q);
-    
+
     if (snapshot.empty) {
       // Return default feeds if none configured
       return defaultFeeds;
     }
-    
+
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -550,11 +488,11 @@ export async function getAllFeeds() {
   try {
     const feedsRef = collection(db, 'rssFeeds');
     const snapshot = await getDocs(feedsRef);
-    
+
     if (snapshot.empty) {
       return defaultFeeds;
     }
-    
+
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()

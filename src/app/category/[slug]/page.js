@@ -39,7 +39,12 @@ export default async function CategoryPage({ params }) {
     let articles = [];
     try {
         const result = await getArticlesByCategory(category.id, 24);
-        articles = result.articles;
+        // Filter out articles without featured images or with placeholders
+        articles = (result.articles || []).filter(article =>
+            article.featuredImage &&
+            article.featuredImage.trim() !== '' &&
+            !article.featuredImage.includes('via.placeholder.com')
+        );
     } catch (error) {
         console.error('Error fetching category articles:', error);
     }

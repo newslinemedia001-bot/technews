@@ -28,7 +28,13 @@ function SearchContent() {
         setLoading(true);
         try {
             const articles = await searchArticles(searchQuery.trim());
-            setResults(articles);
+            // Filter out articles without featured images or with placeholders
+            const articlesWithImages = articles.filter(article =>
+                article.featuredImage &&
+                article.featuredImage.trim() !== '' &&
+                !article.featuredImage.includes('via.placeholder.com')
+            );
+            setResults(articlesWithImages);
         } catch (error) {
             console.error('Search error:', error);
         } finally {
