@@ -42,19 +42,18 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-shrink: 0;
+    flex: 1;
+    max-width: 728px;
 }
 
 .centerAd a {
     display: block;
-    width: 500px;
-    max-width: 500px;
+    width: 100%;
 }
 
 .adImage {
     width: 100%;
     height: auto;
-    max-height: 300px;
     object-fit: contain;
     border-radius: var(--radius-sm);
 }

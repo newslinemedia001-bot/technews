@@ -141,7 +141,7 @@ export const getArticlesByCategory = async (category, limitCount = 10, lastDoc =
         where('category', '==', category),
         where('status', '==', 'published'),
         orderBy('createdAt', 'desc'),
-        limit(limitCount * 5) // Fetch 5x more to account for filtering
+        limit(limitCount * 10) // Fetch 10x more to account for filtering
     );
 
     if (lastDoc) {

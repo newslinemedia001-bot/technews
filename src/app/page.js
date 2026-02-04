@@ -71,7 +71,7 @@ export default async function HomePage() {
     getLatestArticles(30), // Fetch more to ensure enough with images
     getTrendingArticles(15), // Fetch more to ensure enough with images
     getArticlesByCategory('technology', 25), // Fetch more to ensure enough with images
-    getArticlesByCategory('business', 25), // Fetch more to ensure enough with images
+    getArticlesByCategory('business', 50), // Fetch more to ensure enough with images
     getArticlesByCategory('lifestyle', 20), // Fetch more to ensure enough with images
     getArticlesByCategory('reviews', 10), // Increased from 4
     getArticlesByCategory('videos', 10) // Increased from 4
