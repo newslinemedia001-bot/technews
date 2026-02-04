@@ -8,7 +8,7 @@ import NewsletterWidget from '@/components/NewsletterWidget/NewsletterWidget';
 import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';
-// export const revalidate = 0; // Ensure fresh data on every request
+export const revalidate = 0; // Ensure fresh data on every request
 
 export const metadata = {
   title: 'TechNews Kenya - Latest Technology, Business & Innovation News',
@@ -460,32 +460,6 @@ export default async function HomePage() {
                 </div>
               </div>
 
-              {/* Reviews Articles */}
-              <div className={styles.widget}>
-                <h3 className={styles.widgetTitle}>Reviews</h3>
-                <div className={styles.trendingList}>
-                  {categoryArticles['reviews']?.slice(0, 5).map((article) => (
-                    <Link key={article.id} href={`/article/${article.slug}`} className={styles.trendingItem}>
-                      {article.featuredImage && (
-                        <div className={styles.trendingImage}>
-                          <Image
-                            src={article.featuredImage}
-                            alt={article.title}
-                            fill
-                            sizes="60px"
-                            style={{ objectFit: 'cover' }}
-                          />
-                        </div>
-                      )}
-                      <div className={styles.trendingContent}>
-                        <span className={styles.trendingTitle}>
-                          {article.title}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
             </aside>
           </div>
         </div>
