@@ -4,10 +4,12 @@
 const { schedule } = require('@netlify/functions');
 
 const handler = async (event) => {
-  console.log('Starting scheduled RSS import...');
+  console.log('Starting scheduled content import (RSS + AI)...');
   
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/rss/import`, {
+    // Step 1: Import RSS feeds
+    console.log('Step 1: Importing RSS feeds...');
+    const rssResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/rss/import`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -15,14 +17,28 @@ const handler = async (event) => {
       }
     });
     
-    const result = await response.json();
-    console.log('RSS Import completed:', result);
+    const rssResult = await rssResponse.json();
+    console.log('RSS Import completed:', rssResult);
+    
+    // Step 2: Generate AI content
+    console.log('Step 2: Generating AI content...');
+    const aiResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/ai/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.RSS_IMPORT_API_KEY || 'your-secret-key'
+      }
+    });
+    
+    const aiResult = await aiResponse.json();
+    console.log('AI Generation completed:', aiResult);
     
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: 'RSS import completed successfully',
-        result
+        message: 'Content import completed successfully',
+        rss: rssResult,
+        ai: aiResult
       })
     };
   } catch (error) {
@@ -31,7 +47,7 @@ const handler = async (event) => {
     return {
       statusCode: 500,
       body: JSON.stringify({
-        message: 'RSS import failed',
+        message: 'Content import failed',
         error: error.message
       })
     };

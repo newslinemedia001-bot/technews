@@ -9,8 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@netlify/functions": "^2.8.2",
     "bcryptjs": "^3.0.3",
+    "cheerio": "^1.2.0",
     "date-fns": "^4.1.0",
     "firebase": "^12.6.0",
     "js-cookie": "^3.0.5",
