@@ -70,35 +70,40 @@ async function fetchFullContent(url) {
 // RSS feeds to use for AI content generation
 export const aiContentSources = [
   {
-    name: 'TechCrunch',
-    url: 'https://techcrunch.com/feed/',
+    name: 'TechNewsWorld',
+    url: 'https://www.technewsworld.com/perl/syndication/rssfull.pl',
     category: 'technology',
     enabled: true
   },
   {
-    name: 'The Verge',
-    url: 'https://www.theverge.com/rss/index.xml',
+    name: 'Techweez',
+    url: 'https://techweez.com/feed/',
     category: 'technology',
     enabled: true
   },
   {
-    name: 'Wired',
-    url: 'https://www.wired.com/feed/rss',
+    name: 'TechTrends KE',
+    url: 'https://techtrendske.co.ke/feed/',
     category: 'technology',
     enabled: true
   },
   {
-    name: 'Ars Technica',
-    url: 'https://feeds.arstechnica.com/arstechnica/index',
+    name: 'Tech-ish',
+    url: 'https://tech-ish.com/feed/',
     category: 'technology',
     enabled: true
   },
   {
-    name: 'TechCrunch (Scrape)',
-    url: 'https://techcrunch.com', // Direct homepage URL
-    type: 'scrape',
-    category: 'technology',
-    enabled: false // Default disabled, user can enable
+    name: 'The Star Kenya',
+    url: 'https://www.the-star.co.ke/feed',
+    category: 'news',
+    enabled: true
+  },
+  {
+    name: 'Kenyans.co.ke',
+    url: 'https://www.kenyans.co.ke/feed',
+    category: 'news',
+    enabled: true
   }
 ];
 
