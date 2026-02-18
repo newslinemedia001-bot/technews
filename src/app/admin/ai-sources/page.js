@@ -15,12 +15,29 @@ export default function AISourcesPage() {
 
   const loadSources = async () => {
     try {
-      // For now, show default sources
+      // Show updated default sources matching RSS feeds
       const defaultSources = [
-        { name: 'TechCrunch', url: 'https://techcrunch.com', category: 'technology', enabled: true },
-        { name: 'The Verge', url: 'https://www.theverge.com', category: 'technology', enabled: true },
-        { name: 'Wired', url: 'https://www.wired.com', category: 'technology', enabled: true },
-        { name: 'Ars Technica', url: 'https://arstechnica.com', category: 'technology', enabled: true }
+        // News
+        { name: 'The Star Kenya', url: 'https://www.the-star.co.ke/feed', category: 'news', enabled: true },
+        { name: 'Kenyans.co.ke', url: 'https://www.kenyans.co.ke/feed', category: 'news', enabled: true },
+        // Technology
+        { name: 'TechNewsWorld', url: 'https://www.technewsworld.com/perl/syndication/rssfull.pl', category: 'technology', enabled: true },
+        { name: 'TechTrends KE', url: 'https://techtrendske.co.ke/feed/', category: 'technology', enabled: true },
+        // Business
+        { name: 'The Star Business', url: 'https://www.the-star.co.ke/business/feed', category: 'business', enabled: true },
+        { name: 'Kenyans Business', url: 'https://www.kenyans.co.ke/business/feed', category: 'business', enabled: true },
+        // Featured
+        { name: 'Tech-ish', url: 'https://tech-ish.com/feed/', category: 'featured', enabled: true },
+        // Reviews
+        { name: 'TechTrends Reviews', url: 'https://techtrendske.co.ke/feed/', category: 'reviews', enabled: true },
+        // Lifestyle
+        { name: 'The Star Lifestyle', url: 'https://www.the-star.co.ke/lifestyle/feed', category: 'lifestyle', enabled: true },
+        // Videos
+        { name: 'TED Talks', url: 'https://www.ted.com/talks/rss', category: 'videos', enabled: true },
+        { name: 'Vimeo Staff Picks', url: 'https://vimeo.com/channels/staffpicks/videos/rss', category: 'videos', enabled: true },
+        // Podcasts
+        { name: 'NPR Podcasts', url: 'https://www.npr.org/rss/podcast.php?id=510318', category: 'podcasts', enabled: true },
+        { name: 'The Daily', url: 'https://feeds.simplecast.com/54nAGcIl', category: 'podcasts', enabled: true }
       ];
       setSources(defaultSources);
       setLoading(false);
