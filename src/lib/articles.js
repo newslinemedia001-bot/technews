@@ -167,7 +167,6 @@ export const getArticlesByCategory = async (category, limitCount = 10, lastDoc =
                 videoId: data.videoId || null
             };
         })
-        .filter(article => article.featuredImage && article.featuredImage.trim() !== '') // Only articles with valid images
         .slice(0, limitCount); // Limit to requested count
     
     const lastVisible = snapshot.docs[snapshot.docs.length - 1];
@@ -208,7 +207,6 @@ export const getLatestArticles = async (limitCount = 10, lastDoc = null) => {
                 videoId: data.videoId || null
             };
         })
-        .filter(article => article.featuredImage) // Only articles with images
         .slice(0, limitCount); // Limit to requested count
     
     const lastVisible = snapshot.docs[snapshot.docs.length - 1];
@@ -244,7 +242,6 @@ export const getFeaturedArticles = async (limitCount = 5) => {
                 content: contentPreview // Truncated
             };
         })
-        .filter(article => article.featuredImage) // Only articles with images
         .slice(0, limitCount); // Limit to requested count
 };
 

@@ -21,44 +21,34 @@ export default function ArticleCard({
     const [imageError, setImageError] = useState(false);
 
     if (!article) return null;
-    if (imageError) return null; // Hide card if image fails to load
 
     const category = getCategoryById(article.category);
     const categoryName = category?.name || article.category;
     const excerpt = article.excerpt || truncateText(stripHtml(article.content), 150);
     const readingTime = calculateReadingTime(article.content);
     const articleUrl = `/article/${article.slug}`;
+    
+    // Use default image if no featured image or if image fails to load
+    const displayImage = (article.featuredImage && !imageError) ? article.featuredImage : '/default-article-image.svg';
 
     if (variant === 'featured') {
         return (
             <Link href={articleUrl} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
                 <article className={styles.featuredCard}>
                     <div className={styles.featuredImage}>
-                        {article.featuredImage ? (
-                            <>
-                                <Image
-                                    src={article.featuredImage}
-                                    alt={article.title}
-                                    fill
-                                    style={{ objectFit: 'cover' }}
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                    onError={() => setImageError(true)}
-                                />
-                                {article.videoId && (
-                                    <div className={styles.playButton}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <circle cx="12" cy="12" r="10" opacity="0.9" />
-                                            <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" />
-                                        </svg>
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <div className={styles.imagePlaceholder}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                                    <circle cx="9" cy="9" r="2" />
-                                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                        <Image
+                            src={displayImage}
+                            alt={article.title}
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            onError={() => setImageError(true)}
+                        />
+                        {article.videoId && (
+                            <div className={styles.playButton}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10" opacity="0.9" />
+                                    <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" />
                                 </svg>
                             </div>
                         )}
@@ -94,24 +84,14 @@ export default function ArticleCard({
         return (
             <article className={styles.horizontalCard}>
                 <div className={styles.horizontalImage}>
-                    {article.featuredImage ? (
-                        <Image
-                            src={article.featuredImage}
-                            alt={article.title}
-                            fill
-                            style={{ objectFit: 'cover' }}
-                            sizes="150px"
-                            onError={() => setImageError(true)}
-                        />
-                    ) : (
-                        <div className={styles.imagePlaceholder}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                                <circle cx="9" cy="9" r="2" />
-                                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                            </svg>
-                        </div>
-                    )}
+                    <Image
+                        src={displayImage}
+                        alt={article.title}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        sizes="150px"
+                        onError={() => setImageError(true)}
+                    />
                 </div>
                 <div className={styles.horizontalBody}>
                     {showCategory && (
@@ -135,11 +115,11 @@ export default function ArticleCard({
     if (variant === 'minimal') {
         return (
             <article className={styles.minimalCard}>
-                {showMinimalImage && article.featuredImage && (
+                {showMinimalImage && (
                     <Link href={articleUrl} className={styles.minimalImageLink}>
                         <div className={styles.minimalImage}>
                             <Image
-                                src={article.featuredImage}
+                                src={displayImage}
                                 alt={article.title}
                                 fill
                                 style={{ objectFit: 'cover' }}
@@ -187,31 +167,19 @@ export default function ArticleCard({
         <article className={styles.card}>
             <Link href={articleUrl} className={styles.imageLink}>
                 <div className={styles.imageWrapper} style={{ height: imageHeight }}>
-                    {article.featuredImage ? (
-                        <>
-                            <Image
-                                src={article.featuredImage}
-                                alt={article.title}
-                                fill
-                                style={{ objectFit: 'cover' }}
-                                sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 25vw"
-                                onError={() => setImageError(true)}
-                            />
-                            {article.videoId && (
-                                <div className={styles.playButton}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <circle cx="12" cy="12" r="10" opacity="0.9" />
-                                        <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" />
-                                    </svg>
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <div className={styles.imagePlaceholder}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                                <circle cx="9" cy="9" r="2" />
-                                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                    <Image
+                        src={displayImage}
+                        alt={article.title}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 25vw"
+                        onError={() => setImageError(true)}
+                    />
+                    {article.videoId && (
+                        <div className={styles.playButton}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" opacity="0.9" />
+                                <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" />
                             </svg>
                         </div>
                     )}

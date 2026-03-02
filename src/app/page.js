@@ -36,25 +36,6 @@ function prepareArticles(articles) {
   }));
 }
 
-// Helper to filter articles with valid images
-function filterArticlesWithImages(articles) {
-  if (!articles) return [];
-  return articles.filter(article =>
-    article.featuredImage &&
-    article.featuredImage.trim() !== '' &&
-    !article.featuredImage.includes('via.placeholder.com')
-  );
-}
-
-// Helper to filter valid articles (excluding placeholders but allowing no image)
-function filterValidArticles(articles) {
-  if (!articles) return [];
-  return articles.filter(article =>
-    !article.featuredImage ||
-    !article.featuredImage.includes('via.placeholder.com')
-  );
-}
-
 export default async function HomePage() {
   // Fetch all data in parallel - fetching MORE to ensure we have enough after filtering
   const [
@@ -79,30 +60,18 @@ export default async function HomePage() {
 
   const serializedFeatured = prepareArticles(featuredArticles);
 
-  // Process lists with strict image filtering for most sections
-  const rawLatest = prepareArticles(latestResult?.articles || []);
-  const latestArticles = filterArticlesWithImages(rawLatest);
+  // Process all articles without filtering
+  const latestArticles = prepareArticles(latestResult?.articles || []);
+  const serializedTrending = prepareArticles(trendingArticles);
 
-  const rawTrending = prepareArticles(trendingArticles);
-  const serializedTrending = filterArticlesWithImages(rawTrending);
-
-  // Category specific processing
-  const rawTech = prepareArticles(techArticles?.articles || []);
-  const rawBiz = prepareArticles(bizArticles?.articles || []);
-  const rawLifestyle = prepareArticles(lifestyleArticles?.articles || []);
-  const rawReviews = prepareArticles(reviewsArticles?.articles || []);
-  const rawVideos = prepareArticles(videoArticles?.articles || []);
-
+  // Category specific processing - no filtering
   const categoryArticles = {
-    // Technology is special: Hero allows text-only, Main section requires images
-    technologyHero: filterValidArticles(rawTech),
-    technology: filterArticlesWithImages(rawTech),
-
-    // Others require images
-    business: filterArticlesWithImages(rawBiz),
-    lifestyle: filterArticlesWithImages(rawLifestyle),
-    reviews: filterArticlesWithImages(rawReviews),
-    videos: filterArticlesWithImages(rawVideos)
+    technologyHero: prepareArticles(techArticles?.articles || []),
+    technology: prepareArticles(techArticles?.articles || []),
+    business: prepareArticles(bizArticles?.articles || []),
+    lifestyle: prepareArticles(lifestyleArticles?.articles || []),
+    reviews: prepareArticles(reviewsArticles?.articles || []),
+    videos: prepareArticles(videoArticles?.articles || [])
   };
 
   const hasArticles = (latestArticles.length > 0) || (serializedFeatured.length > 0);

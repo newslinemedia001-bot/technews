@@ -15,29 +15,11 @@ export default function AISourcesPage() {
 
   const loadSources = async () => {
     try {
-      // Show updated default sources matching RSS feeds
       const defaultSources = [
-        // News
-        { name: 'The Star Kenya', url: 'https://www.the-star.co.ke/feed', category: 'news', enabled: true },
-        { name: 'Kenyans.co.ke', url: 'https://www.kenyans.co.ke/feed', category: 'news', enabled: true },
-        // Technology
-        { name: 'TechNewsWorld', url: 'https://www.technewsworld.com/perl/syndication/rssfull.pl', category: 'technology', enabled: true },
-        { name: 'TechTrends KE', url: 'https://techtrendske.co.ke/feed/', category: 'technology', enabled: true },
-        // Business
-        { name: 'The Star Business', url: 'https://www.the-star.co.ke/business/feed', category: 'business', enabled: true },
-        { name: 'Kenyans Business', url: 'https://www.kenyans.co.ke/business/feed', category: 'business', enabled: true },
-        // Featured
-        { name: 'Tech-ish', url: 'https://tech-ish.com/feed/', category: 'featured', enabled: true },
-        // Reviews
-        { name: 'TechTrends Reviews', url: 'https://techtrendske.co.ke/feed/', category: 'reviews', enabled: true },
-        // Lifestyle
-        { name: 'The Star Lifestyle', url: 'https://www.the-star.co.ke/lifestyle/feed', category: 'lifestyle', enabled: true },
-        // Videos
-        { name: 'TED Talks', url: 'https://www.ted.com/talks/rss', category: 'videos', enabled: true },
-        { name: 'Vimeo Staff Picks', url: 'https://vimeo.com/channels/staffpicks/videos/rss', category: 'videos', enabled: true },
-        // Podcasts
-        { name: 'NPR Podcasts', url: 'https://www.npr.org/rss/podcast.php?id=510318', category: 'podcasts', enabled: true },
-        { name: 'The Daily', url: 'https://feeds.simplecast.com/54nAGcIl', category: 'podcasts', enabled: true }
+        { name: 'TechCrunch', url: 'https://techcrunch.com/feed/', category: 'technology', enabled: true },
+        { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml', category: 'technology', enabled: true },
+        { name: 'Wired', url: 'https://www.wired.com/feed/rss', category: 'technology', enabled: true },
+        { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index', category: 'technology', enabled: true }
       ];
       setSources(defaultSources);
       setLoading(false);
@@ -118,10 +100,9 @@ export default function AISourcesPage() {
       <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
         <h3>How AI Content Generation Works:</h3>
         <ol style={{ marginLeft: '20px', lineHeight: '1.8' }}>
-          <li>Discovers latest articles from configured sources</li>
-          <li>Fetches full article content and images</li>
+          <li>Fetches RSS feeds from configured sources</li>
+          <li>Extracts article content and images from RSS</li>
           <li>Uses Gemini AI to completely rewrite the article</li>
-          <li>Extracts and includes original images</li>
           <li>Publishes as new content with proper attribution</li>
         </ol>
         <p style={{ marginTop: '15px', fontStyle: 'italic' }}>
@@ -134,7 +115,7 @@ export default function AISourcesPage() {
           <thead>
             <tr>
               <th>Source Name</th>
-              <th>URL</th>
+              <th>RSS Feed URL</th>
               <th>Category</th>
               <th>Status</th>
             </tr>
@@ -167,17 +148,6 @@ export default function AISourcesPage() {
             ))}
           </tbody>
         </table>
-      </div>
-
-      <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffeaa7' }}>
-        <h3>⚠️ Important Notes:</h3>
-        <ul style={{ marginLeft: '20px', lineHeight: '1.8' }}>
-          <li>AI-generated articles are marked with "AI Rewritten" in the author field</li>
-          <li>Original source URLs are preserved for attribution</li>
-          <li>Content is completely rewritten to avoid plagiarism</li>
-          <li>Images are pulled from original articles when available</li>
-          <li>Rate limiting: 2 articles per source per run</li>
-        </ul>
       </div>
     </div>
   );

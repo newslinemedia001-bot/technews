@@ -3,17 +3,16 @@ import { generateFromAllSources } from '@/lib/ai-content';
 
 export async function POST(request) {
   try {
-    // API key authentication
     const apiKeyHeader = request.headers.get('x-api-key');
     const authHeader = request.headers.get('authorization');
     const expectedKey = process.env.RSS_IMPORT_API_KEY || 'your-secret-key';
-
+    
     let apiKey = apiKeyHeader;
-
+    
     if (!apiKey && authHeader && authHeader.startsWith('Bearer ')) {
       apiKey = authHeader.substring(7);
     }
-
+    
     if (apiKey !== expectedKey) {
       return NextResponse.json(
         { error: 'Unauthorized - Invalid API key' },
@@ -22,10 +21,9 @@ export async function POST(request) {
     }
 
     console.log('Starting AI content generation...');
-
-    // Generate 2 articles per source
+    
     const result = await generateFromAllSources(2);
-
+    
     const summary = {
       totalSources: result.totalSources,
       successfulSources: result.successfulSources,
@@ -33,19 +31,13 @@ export async function POST(request) {
       totalDuplicates: result.totalDuplicates,
       details: result.results
     };
-
+    
     console.log('AI content generation completed:', summary);
-
-    let message = `Generated ${result.totalGenerated} AI articles from ${result.successfulSources} sources`;
-    if (result.totalGenerated === 0 && result.totalDuplicates > 0) {
-      message = `No new AI articles generated (${result.totalDuplicates} duplicates skipped)`;
-    }
-
+    
     return NextResponse.json({
       success: true,
-      message,
-      ...summary,
-      warnings: result.results.filter(r => !r.success && r.isEmpty).map(r => `${r.sourceName} is empty`)
+      message: `Generated ${result.totalGenerated} AI articles from ${result.successfulSources} sources`,
+      ...summary
     });
   } catch (error) {
     console.error('Error in AI generation API:', error);
@@ -56,11 +48,10 @@ export async function POST(request) {
   }
 }
 
-// Manual trigger endpoint (GET)
 export async function GET(request) {
   try {
     const result = await generateFromAllSources(2);
-
+    
     return NextResponse.json({
       success: true,
       message: 'AI content generation completed',
