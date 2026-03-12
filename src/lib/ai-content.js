@@ -193,6 +193,19 @@ export async function generateAIArticle(item, sourceName, category) {
     const docRef = await addDoc(collection(db, 'articles'), articleData);
     console.log(`✅ AI article created: ${rewritten.title}`);
 
+    // If no image was found, try to auto-search for one
+    if (!featuredImage) {
+      try {
+        const { findAndSetArticleImage } = await import('@/lib/image-search');
+        // Run image search in background (don't wait for it)
+        findAndSetArticleImage(docRef.id, rewritten.title, rewritten.content, category).catch(err => {
+          console.log('Background image search failed:', err.message);
+        });
+      } catch (error) {
+        console.log('Image search not available');
+      }
+    }
+
     return {
       success: true,
       id: docRef.id,

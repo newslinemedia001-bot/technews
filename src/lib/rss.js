@@ -280,9 +280,17 @@ export async function importArticle(item, feedName, category) {
     // Create excerpt from content
     const excerptText = textOnly.substring(0, 300) + (textOnly.length > 300 ? '...' : '');
 
-    // CRITICAL: Ensure image exists - if none found, keep it null so it can be filtered out display-side
+    // CRITICAL: Ensure image exists - if none found, try to auto-search for one
     if (!image || image.trim() === '') {
-      image = null;
+      // Try to find an image automatically
+      try {
+        const { findAndSetArticleImage } = await import('@/lib/image-search');
+        // We'll set this after creating the article
+        image = null;
+      } catch (error) {
+        console.log('Image search not available:', error.message);
+        image = null;
+      }
     }
 
     const articleData = {
@@ -306,7 +314,20 @@ export async function importArticle(item, feedName, category) {
     };
 
     const docRef = await addDoc(collection(db, 'articles'), articleData);
-    console.log(`Imported article: ${item.title} (${textOnly.length} chars)${videoId ? ' [VIDEO]' : ''}${!extractImage(item) ? ' [PLACEHOLDER IMG]' : ''}`);
+    console.log(`Imported article: ${item.title} (${textOnly.length} chars)${videoId ? ' [VIDEO]' : ''}${!extractImage(item) ? ' [NO IMG - WILL SEARCH]' : ''}`);
+
+    // If no image was found, try to auto-search for one
+    if (!image) {
+      try {
+        const { findAndSetArticleImage } = await import('@/lib/image-search');
+        // Run image search in background (don't wait for it)
+        findAndSetArticleImage(docRef.id, item.title, textOnly, category).catch(err => {
+          console.log('Background image search failed:', err.message);
+        });
+      } catch (error) {
+        console.log('Image search not available');
+      }
+    }
 
     return { success: true, id: docRef.id, title: item.title };
   } catch (error) {
