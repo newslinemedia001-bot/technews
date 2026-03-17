@@ -16,7 +16,8 @@ export default function ArticleCard({
     imageHeight = 200,
     showMinimalImage = false, // Only show image in minimal variant if true
     titleLineClamp = null, // Optional line clamp for titles
-    lightText = false // Force light text for dark backgrounds
+    lightText = false, // Force light text for dark backgrounds
+    index = 0 // Add index prop to vary images
 }) {
     const [imageError, setImageError] = useState(false);
 
@@ -28,8 +29,28 @@ export default function ArticleCard({
     const readingTime = calculateReadingTime(article.content);
     const articleUrl = `/article/${article.slug}`;
     
-    // Use default image if no featured image or if image fails to load
-    const displayImage = (article.featuredImage && !imageError) ? article.featuredImage : '/default-article-image.svg';
+    // Use category-specific default image with variation based on index
+    const getDefaultImage = (category, index = 0) => {
+      const imageNumber = (index % 4) + 1; // Cycle through 1-4
+      
+      switch(category) {
+        case 'news': 
+          return `/default-news-${imageNumber}.svg`;
+        case 'business': 
+          return `/default-business-${imageNumber}.svg`;
+        case 'technology': 
+          return `/default-technology-${imageNumber}.svg`;
+        case 'lifestyle': 
+        case 'reviews': 
+        case 'videos': 
+        default: 
+          return '/default-article-image.svg';
+      }
+    };
+    
+    const displayImage = (article.featuredImage && !imageError) ? 
+      article.featuredImage : 
+      getDefaultImage(article.category, index);
 
     if (variant === 'featured') {
         return (

@@ -1,0 +1,28 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="url(#newsGradient4)"/>
+  <defs>
+    <linearGradient id="newsGradient4" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  
+  <g opacity="0.1">
+    <circle cx="120" cy="120" r="50" stroke="white" stroke-width="2" fill="none"/>
+    <circle cx="180" cy="180" r="30" stroke="white" stroke-width="2" fill="none"/>
+    <circle cx="1080" cy="450" r="60" stroke="white" stroke-width="2" fill="none"/>
+  </g>
+  
+  <g transform="translate(300, 150)">
+    <rect x="0" y="0" width="600" height="330" rx="25" fill="white" opacity="0.15"/>
+    <rect x="50" y="50" width="500" height="80" rx="10" fill="white" opacity="0.3"/>
+    <rect x="50" y="150" width="400" height="20" rx="4" fill="white" opacity="0.25"/>
+    <rect x="50" y="180" width="450" height="20" rx="4" fill="white" opacity="0.25"/>
+    <rect x="50" y="210" width="350" height="20" rx="4" fill="white" opacity="0.25"/>
+    <rect x="50" y="250" width="250" height="50" rx="8" fill="white" opacity="0.2"/>
+  </g>
+  
+  <text x="600" y="560" font-family="Arial, sans-serif" font-size="30" font-weight="600" fill="white" text-anchor="middle" opacity="0.9">
+    TRENDING NOW
+  </text>
+</svg>

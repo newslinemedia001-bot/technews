@@ -1,0 +1,27 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="url(#newsGradient3)"/>
+  <defs>
+    <linearGradient id="newsGradient3" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#b91c1c"/>
+      <stop offset="100%" stop-color="#7f1d1d"/>
+    </linearGradient>
+  </defs>
+  
+  <g opacity="0.1">
+    <polygon points="150,80 200,160 100,160" stroke="white" stroke-width="3" fill="none"/>
+    <polygon points="1050,470 1100,550 1000,550" stroke="white" stroke-width="3" fill="none"/>
+  </g>
+  
+  <g transform="translate(350, 180)">
+    <rect x="0" y="0" width="500" height="270" rx="20" fill="white" opacity="0.15"/>
+    <rect x="40" y="40" width="420" height="60" rx="8" fill="white" opacity="0.3"/>
+    <rect x="40" y="120" width="300" height="18" rx="3" fill="white" opacity="0.25"/>
+    <rect x="40" y="148" width="350" height="18" rx="3" fill="white" opacity="0.25"/>
+    <rect x="40" y="176" width="280" height="18" rx="3" fill="white" opacity="0.25"/>
+    <rect x="40" y="210" width="200" height="40" rx="6" fill="white" opacity="0.2"/>
+  </g>
+  
+  <text x="600" y="540" font-family="Arial, sans-serif" font-size="28" font-weight="500" fill="white" text-anchor="middle" opacity="0.9">
+    NEWS UPDATE
+  </text>
+</svg>

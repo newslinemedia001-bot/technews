@@ -327,10 +327,12 @@ export default function RSSFeedsPage() {
                   color: 'var(--text-primary)'
                 }}
               >
+                <option value="news">News</option>
                 <option value="technology">Technology</option>
                 <option value="business">Business</option>
-                <option value="news">News</option>
                 <option value="lifestyle">Lifestyle</option>
+                <option value="videos">Videos</option>
+                <option value="reviews">Reviews</option>
               </select>
             </div>
             <button type="submit" className={styles.button}>
@@ -343,7 +345,7 @@ export default function RSSFeedsPage() {
       <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '8px' }}>
         <h2 style={{ marginBottom: '1rem' }}>Configured Feeds</h2>
         <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          Auto-import via FastCron runs every 3 hours, rotating through categories (News → Technology → Business → Featured → Reviews → Lifestyle → Videos → Podcasts → repeat). 
+          Auto-import via FastCron runs every 3 hours, rotating through categories (News → Technology → Business → Lifestyle → Videos → Reviews → repeat). 
           <a href="/FASTCRON_SETUP.md" target="_blank" style={{ color: 'var(--primary)', marginLeft: '0.5rem' }}>Setup Guide →</a>
         </p>
         

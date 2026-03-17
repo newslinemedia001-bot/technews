@@ -36,16 +36,11 @@ function prepareArticles(articles) {
   }));
 }
 
-// Helper to filter articles with valid images only
+// Helper to filter articles with valid images only - DISABLED FOR NOW
 function filterArticlesWithValidImages(articles) {
   if (!articles) return [];
-  return articles.filter(article =>
-    article.featuredImage &&
-    article.featuredImage.trim() !== '' &&
-    !article.featuredImage.includes('via.placeholder.com') &&
-    !article.featuredImage.includes('placeholder') &&
-    article.featuredImage.startsWith('http')
-  );
+  // SHOW ALL ARTICLES - no filtering
+  return articles;
 }
 
 export default async function HomePage() {
@@ -153,7 +148,7 @@ export default async function HomePage() {
               <div className={`${styles.heroSide} ${styles.technologySide}`}>
                 <h3 className={styles.heroSideTitle}>Technology</h3>
                 <div className={styles.heroSideContent}>
-                  {categoryArticles['technologyHero']?.slice(0, 4).map((article) => (
+                  {categoryArticles['technologyHero']?.slice(0, 4).map((article, index) => (
                     <ArticleCard
                       key={article.id}
                       article={article}
@@ -161,6 +156,7 @@ export default async function HomePage() {
                       showMeta={true}
                       showMinimalImage={false}
                       lightText={true} // Technology side has blue background
+                      index={index}
                     />
                   ))}
                 </div>
@@ -177,13 +173,14 @@ export default async function HomePage() {
               <div className={`${styles.heroSide} ${styles.businessSide}`}>
                 <h3 className={styles.heroSideTitle}>Business</h3>
                 <div className={styles.heroSideContent}>
-                  {categoryArticles['business']?.slice(0, 3).map((article) => (
+                  {categoryArticles['business']?.slice(0, 3).map((article, index) => (
                     <ArticleCard
                       key={article.id}
                       article={article}
                       variant="minimal"
                       showMeta={true}
                       showMinimalImage={false}
+                      index={index}
                     />
                   ))}
                 </div>
@@ -216,8 +213,8 @@ export default async function HomePage() {
                 </div>
                 {latestArticles.length > 0 ? (
                   <div className={styles.articlesGrid}>
-                    {latestArticles.slice(0, 4).map((article) => (
-                      <ArticleCard key={article.id} article={article} />
+                    {latestArticles.slice(0, 4).map((article, index) => (
+                      <ArticleCard key={article.id} article={article} index={index} />
                     ))}
                   </div>
                 ) : (
@@ -240,8 +237,8 @@ export default async function HomePage() {
                 </div>
                 {categoryArticles['technology']?.length > 0 ? (
                   <div className={styles.articlesGrid}>
-                    {categoryArticles['technology'].slice(0, 4).map((article) => (
-                      <ArticleCard key={article.id} article={article} />
+                    {categoryArticles['technology'].slice(0, 4).map((article, index) => (
+                      <ArticleCard key={article.id} article={article} index={index} />
                     ))}
                   </div>
                 ) : (
@@ -264,8 +261,8 @@ export default async function HomePage() {
                 </div>
                 {categoryArticles['business']?.length > 0 ? (
                   <div className={styles.articlesGrid}>
-                    {categoryArticles['business'].slice(0, 4).map((article) => (
-                      <ArticleCard key={article.id} article={article} />
+                    {categoryArticles['business'].slice(0, 4).map((article, index) => (
+                      <ArticleCard key={article.id} article={article} index={index} />
                     ))}
                   </div>
                 ) : (

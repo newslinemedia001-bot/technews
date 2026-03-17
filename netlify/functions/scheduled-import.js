@@ -55,8 +55,8 @@ const handler = async (event) => {
 };
 
 // CHANGE SCHEDULE HERE:
-// Every 6 hours: '0 */6 * * *'
 // Every 3 hours: '0 */3 * * *'
+// Every 6 hours: '0 */6 * * *'
 // Every 12 hours: '0 */12 * * *'
 // Once daily: '0 9 * * *'
-module.exports.handler = schedule('0 */6 * * *', handler);
+module.exports.handler = schedule('0 */3 * * *', handler);

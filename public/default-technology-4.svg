@@ -1,0 +1,29 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="url(#techGradient4)"/>
+  <defs>
+    <linearGradient id="techGradient4" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+  
+  <g opacity="0.1">
+    <circle cx="100" cy="100" r="40" stroke="white" stroke-width="2" fill="none"/>
+    <circle cx="160" cy="160" r="25" stroke="white" stroke-width="2" fill="none"/>
+    <circle cx="1100" cy="530" r="50" stroke="white" stroke-width="2" fill="none"/>
+    <circle cx="1040" cy="470" r="30" stroke="white" stroke-width="2" fill="none"/>
+  </g>
+  
+  <g transform="translate(300, 150)">
+    <rect x="0" y="0" width="600" height="330" rx="25" fill="white" opacity="0.15"/>
+    <rect x="60" y="60" width="480" height="70" rx="12" fill="white" opacity="0.3"/>
+    <rect x="60" y="150" width="380" height="20" rx="4" fill="white" opacity="0.25"/>
+    <rect x="60" y="180" width="420" height="20" rx="4" fill="white" opacity="0.25"/>
+    <rect x="60" y="210" width="320" height="20" rx="4" fill="white" opacity="0.25"/>
+    <rect x="60" y="250" width="250" height="45" rx="8" fill="white" opacity="0.2"/>
+  </g>
+  
+  <text x="600" y="560" font-family="Arial, sans-serif" font-size="28" font-weight="500" fill="white" text-anchor="middle" opacity="0.9">
+    TECH NEWS
+  </text>
+</svg>

@@ -31,17 +31,16 @@ export const defaultFeeds = [
     category: 'news',
     enabled: true
   },
-  // Technology
   {
-    name: 'TechNewsWorld',
-    url: 'https://www.technewsworld.com/perl/syndication/rssfull.pl',
-    category: 'technology',
+    name: 'Capital FM',
+    url: 'https://www.capitalfm.co.ke/news/feed/',
+    category: 'news',
     enabled: true
   },
   {
-    name: 'TechTrends KE',
-    url: 'https://techtrendske.co.ke/feed/',
-    category: 'technology',
+    name: 'Nairobi Wire',
+    url: 'https://nairobiwire.com/feed/',
+    category: 'news',
     enabled: true
   },
   // Business
@@ -57,18 +56,17 @@ export const defaultFeeds = [
     category: 'business',
     enabled: true
   },
-  // Featured
+  // Technology (using general feeds but categorizing as tech)
   {
-    name: 'Tech-ish',
-    url: 'https://tech-ish.com/feed/',
-    category: 'featured',
+    name: 'Capital FM Tech',
+    url: 'https://www.capitalfm.co.ke/news/feed/',
+    category: 'technology',
     enabled: true
   },
-  // Reviews
   {
-    name: 'TechTrends Reviews',
-    url: 'https://techtrendske.co.ke/feed/',
-    category: 'reviews',
+    name: 'Nairobi Wire Tech',
+    url: 'https://nairobiwire.com/feed/',
+    category: 'technology',
     enabled: true
   },
   // Lifestyle
@@ -76,6 +74,38 @@ export const defaultFeeds = [
     name: 'The Star Lifestyle',
     url: 'https://www.the-star.co.ke/lifestyle/feed',
     category: 'lifestyle',
+    enabled: true
+  },
+  {
+    name: 'Capital FM Lifestyle',
+    url: 'https://www.capitalfm.co.ke/news/feed/',
+    category: 'lifestyle',
+    enabled: true
+  },
+  // Videos (using news feeds but categorizing as videos)
+  {
+    name: 'Nairobi Wire Videos',
+    url: 'https://nairobiwire.com/feed/',
+    category: 'videos',
+    enabled: true
+  },
+  {
+    name: 'The Star Videos',
+    url: 'https://www.the-star.co.ke/feed',
+    category: 'videos',
+    enabled: true
+  },
+  // Reviews (using tech-focused content)
+  {
+    name: 'Tech Reviews',
+    url: 'https://www.capitalfm.co.ke/news/feed/',
+    category: 'reviews',
+    enabled: true
+  },
+  {
+    name: 'Product Reviews',
+    url: 'https://www.kenyans.co.ke/feed',
+    category: 'reviews',
     enabled: true
   }
 ];
@@ -377,8 +407,8 @@ export async function importFromAllFeeds() {
   const settingsRef = doc(db, 'settings', 'rssRotation');
   const settingsDoc = await getDoc(settingsRef);
 
-  // All your categories
-  const categories = ['news', 'technology', 'business', 'featured', 'reviews', 'lifestyle', 'videos', 'podcasts'];
+  // Only categories that have feeds
+  const categories = ['news', 'business', 'technology', 'lifestyle', 'videos', 'reviews'];
   let currentCategoryIndex = 0;
 
   if (settingsDoc.exists()) {
@@ -399,6 +429,10 @@ export async function importFromAllFeeds() {
       const result = await importFromFeed(feed.url, feed.name, feed.category, 5);
       results.push(result);
     }
+  } else {
+    // If no feeds for this category, skip to next one immediately
+    console.log(`No feeds for category ${currentCategory}, skipping...`);
+    currentCategoryIndex = (currentCategoryIndex + 1) % categories.length;
   }
 
   // Save current category for next rotation
