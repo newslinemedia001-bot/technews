@@ -1,4 +1,5 @@
 import Parser from 'rss-parser';
+import * as cheerio from 'cheerio';
 import { db } from './firebase';
 import { collection, addDoc, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
 
@@ -10,27 +11,16 @@ const parser = new Parser({
     item: [
       ['media:content', 'mediaContent'],
       ['media:thumbnail', 'mediaThumbnail'],
+      ['enclosure', 'enclosure'],
       ['content:encoded', 'contentEncoded'],
-      ['description', 'description']
+      ['description', 'description'],
+      ['dc:creator', 'creator']
     ]
   }
 });
 
-// Default RSS feeds - Kenyan tech news sources
 export const defaultFeeds = [
   // News
-  {
-    name: 'The Star Kenya',
-    url: 'https://www.the-star.co.ke/feed',
-    category: 'news',
-    enabled: true
-  },
-  {
-    name: 'Kenyans.co.ke',
-    url: 'https://www.kenyans.co.ke/feed',
-    category: 'news',
-    enabled: true
-  },
   {
     name: 'Capital FM',
     url: 'https://www.capitalfm.co.ke/news/feed/',
@@ -39,72 +29,54 @@ export const defaultFeeds = [
   },
   {
     name: 'Nairobi Wire',
-    url: 'https://nairobiwire.com/feed/',
+    url: 'https://nairobiwire.com/category/news/feed/',
     category: 'news',
     enabled: true
   },
   // Business
   {
-    name: 'The Star Business',
-    url: 'https://www.the-star.co.ke/business/feed',
+    name: 'Capital FM Business',
+    url: 'https://www.capitalfm.co.ke/business/feed/',
     category: 'business',
     enabled: true
   },
   {
-    name: 'Kenyans Business',
-    url: 'https://www.kenyans.co.ke/business/feed',
+    name: 'Nairobi Wire Business',
+    url: 'https://nairobiwire.com/category/business/feed/',
     category: 'business',
     enabled: true
   },
-  // Technology (using general feeds but categorizing as tech)
-  {
-    name: 'Capital FM Tech',
-    url: 'https://www.capitalfm.co.ke/news/feed/',
-    category: 'technology',
-    enabled: true
-  },
+  // Technology
   {
     name: 'Nairobi Wire Tech',
-    url: 'https://nairobiwire.com/feed/',
+    url: 'https://nairobiwire.com/category/tech/feed/',
     category: 'technology',
     enabled: true
   },
   // Lifestyle
   {
-    name: 'The Star Lifestyle',
-    url: 'https://www.the-star.co.ke/lifestyle/feed',
-    category: 'lifestyle',
-    enabled: true
-  },
-  {
     name: 'Capital FM Lifestyle',
-    url: 'https://www.capitalfm.co.ke/news/feed/',
+    url: 'https://www.capitalfm.co.ke/lifestyle/feed/',
     category: 'lifestyle',
     enabled: true
   },
-  // Videos (using news feeds but categorizing as videos)
   {
-    name: 'Nairobi Wire Videos',
-    url: 'https://nairobiwire.com/feed/',
+    name: 'Nairobi Wire Entertainment',
+    url: 'https://nairobiwire.com/category/entertainment/feed/',
+    category: 'lifestyle',
+    enabled: true
+  },
+  // Videos
+  {
+    name: 'Capital FM Videos',
+    url: 'https://www.capitalfm.co.ke/news/category/videos/feed/',
     category: 'videos',
     enabled: true
   },
+  // Reviews 
   {
-    name: 'The Star Videos',
-    url: 'https://www.the-star.co.ke/feed',
-    category: 'videos',
-    enabled: true
-  },
-  // Reviews (using tech-focused content)
-  {
-    name: 'Tech Reviews',
-    url: 'https://www.capitalfm.co.ke/news/feed/',
-    category: 'reviews',
-    enabled: true
-  },
-  {
-    name: 'Product Reviews',
-    url: 'https://www.kenyans.co.ke/feed',
+    name: 'Nairobi Wire Reviews',
+    url: 'https://nairobiwire.com/category/reviews/feed/',
     category: 'reviews',
     enabled: true
   }
@@ -166,45 +138,27 @@ function extractImage(item) {
     }
   }
 
-  // Extract from content:encoded
-  if (item.contentEncoded || item['content:encoded']) {
-    const content = item.contentEncoded || item['content:encoded'];
-    const imgMatches = content.matchAll(/<img[^>]+src=["']([^"'>]+)["'][^>]*>/gi);
-    for (const match of imgMatches) {
-      const url = match[1];
-      // Skip small icons, tracking pixels, and ads
-      if (!url.includes('1x1') && !url.includes('pixel') && !url.includes('feedburner') && !url.includes('icon')) {
-        // Try to get width from img tag
-        const widthMatch = match[0].match(/width=["']?(\d+)/i);
-        const width = widthMatch ? parseInt(widthMatch[1]) : 0;
-        images.push({ url, width });
-      }
+  // Use cheerio for content extraction for better reliability
+  const extractFromHtml = (html) => {
+    if (!html) return;
+    try {
+      const $ = cheerio.load(html);
+      $('img').each((i, el) => {
+        const url = $(el).attr('src');
+        if (url && !url.includes('1x1') && !url.includes('pixel') && !url.includes('feedburner') && !url.includes('icon')) {
+          const widthAttr = $(el).attr('width');
+          const width = widthAttr ? parseInt(widthAttr) : 0;
+          images.push({ url, width: isNaN(width) ? 0 : width });
+        }
+      });
+    } catch (e) {
+      console.error('Error parsing HTML for images:', e);
     }
-  }
+  };
 
-  // Extract from content
-  if (item.content) {
-    const imgMatches = item.content.matchAll(/<img[^>]+src=["']([^"'>]+)["'][^>]*>/gi);
-    for (const match of imgMatches) {
-      const url = match[1];
-      if (!url.includes('1x1') && !url.includes('pixel') && !url.includes('feedburner') && !url.includes('icon')) {
-        const widthMatch = match[0].match(/width=["']?(\d+)/i);
-        const width = widthMatch ? parseInt(widthMatch[1]) : 0;
-        images.push({ url, width });
-      }
-    }
-  }
-
-  // Extract from description
-  if (item.description) {
-    const imgMatches = item.description.matchAll(/<img[^>]+src=["']([^"'>]+)["'][^>]*>/gi);
-    for (const match of imgMatches) {
-      const url = match[1];
-      if (!url.includes('1x1') && !url.includes('pixel') && !url.includes('feedburner') && !url.includes('icon')) {
-        images.push({ url, width: 0 });
-      }
-    }
-  }
+  extractFromHtml(item.contentEncoded || item['content:encoded']);
+  extractFromHtml(item.content);
+  extractFromHtml(item.description);
 
   // Sort by width (prefer larger images) and return the best one
   if (images.length > 0) {
@@ -330,7 +284,8 @@ export async function importArticle(item, feedName, category) {
       excerpt: excerptText,
       category: category,
       author: feedName,
-      featuredImage: image,
+      featuredImage: image || null,
+      image: image || null,
       videoId: videoId || '',
       status: 'published',
       featured: false,
