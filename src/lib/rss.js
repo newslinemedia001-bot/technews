@@ -76,6 +76,32 @@ export const defaultFeeds = [
     url: 'https://nairobiwire.com/category/reviews/feed/',
     category: 'reviews',
     enabled: true
+  },
+  // Featured & Sports
+  {
+    name: 'Capital FM Featured',
+    url: 'https://www.capitalfm.co.ke/sports/feed/',
+    category: 'featured',
+    enabled: true
+  },
+  {
+    name: 'Nairobi Wire Featured',
+    url: 'https://nairobiwire.com/category/sports/feed/',
+    category: 'featured',
+    enabled: true
+  },
+  // Podcasts
+  {
+    name: 'Capital FM Podcasts',
+    url: 'https://www.capitalfm.co.ke/podcasts/feed/',
+    category: 'podcasts',
+    enabled: true
+  },
+  {
+    name: 'Nairobi Wire Podcasts',
+    url: 'https://nairobiwire.com/category/podcasts/feed/',
+    category: 'podcasts',
+    enabled: true
   }
 ];
 
@@ -285,7 +311,7 @@ export async function importArticle(item, feedName, category) {
       image: image || null,
       videoId: videoId || '',
       status: 'published',
-      featured: false,
+      featured: category === 'featured',
       sourceUrl: item.link,
       sourceName: feedName,
       isAggregated: true,
@@ -360,7 +386,7 @@ export async function importFromAllFeeds() {
   const settingsDoc = await getDoc(settingsRef);
 
   // Only categories that have feeds
-  const categories = ['news', 'business', 'technology', 'lifestyle', 'videos', 'reviews'];
+  const categories = ['news', 'business', 'technology', 'lifestyle', 'videos', 'reviews', 'featured', 'podcasts'];
   let currentCategoryIndex = 0;
 
   if (settingsDoc.exists()) {
