@@ -50,6 +50,12 @@ export const defaultFeeds = [
     category: 'technology',
     enabled: true
   },
+  {
+    name: 'TechNewsWorld',
+    url: 'https://www.technewsworld.com/feed/',
+    category: 'technology',
+    enabled: true
+  },
   // Lifestyle
   {
     name: 'Capital FM Lifestyle',
