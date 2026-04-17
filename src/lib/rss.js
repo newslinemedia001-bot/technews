@@ -51,14 +51,8 @@ export const defaultFeeds = [
     enabled: true
   },
   {
-    name: 'TechCrunch',
-    url: 'https://techcrunch.com/feed/',
-    category: 'technology',
-    enabled: true
-  },
-  {
-    name: 'The Verge',
-    url: 'https://www.theverge.com/rss/index.xml',
+    name: 'Capital FM Tech',
+    url: 'https://www.capitalfm.co.ke/news/category/technology/feed/',
     category: 'technology',
     enabled: true
   },
