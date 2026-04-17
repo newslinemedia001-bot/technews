@@ -51,8 +51,14 @@ export const defaultFeeds = [
     enabled: true
   },
   {
-    name: 'TechNewsWorld',
-    url: 'https://www.technewsworld.com/feed/',
+    name: 'TechCrunch',
+    url: 'https://techcrunch.com/feed/',
+    category: 'technology',
+    enabled: true
+  },
+  {
+    name: 'The Verge',
+    url: 'https://www.theverge.com/rss/index.xml',
     category: 'technology',
     enabled: true
   },
