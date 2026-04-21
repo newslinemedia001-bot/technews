@@ -45,14 +45,32 @@ export const defaultFeeds = [
   },
   // Technology
   {
-    name: 'Nairobi Wire Tech',
-    url: 'https://nairobiwire.com/category/tech/feed/',
+    name: 'TechNewsWorld',
+    url: 'https://www.technewsworld.com/perl/syndication/rssfull.pl',
     category: 'technology',
     enabled: true
   },
   {
-    name: 'Capital FM Tech',
-    url: 'https://www.capitalfm.co.ke/news/category/technology/feed/',
+    name: 'TechTrends KE',
+    url: 'https://techtrendske.co.ke/feed/',
+    category: 'technology',
+    enabled: true
+  },
+  {
+    name: 'TechCrunch',
+    url: 'https://techcrunch.com/feed/',
+    category: 'technology',
+    enabled: true
+  },
+  {
+    name: 'The Verge',
+    url: 'https://www.theverge.com/rss/index.xml',
+    category: 'technology',
+    enabled: true
+  },
+  {
+    name: 'Ars Technica',
+    url: 'https://feeds.arstechnica.com/arstechnica/index',
     category: 'technology',
     enabled: true
   },
