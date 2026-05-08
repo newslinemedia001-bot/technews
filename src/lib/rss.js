@@ -30,6 +30,12 @@ export const defaultFeeds = [
     category: 'news',
     enabled: true
   },
+  {
+    name: 'Tukio',
+    url: 'https://tukio.co.ke/feed/',
+    category: 'news',
+    enabled: true
+  },
   // Business
   {
     name: 'Capital FM Business',
@@ -40,6 +46,12 @@ export const defaultFeeds = [
   {
     name: 'Nairobi Wire Business',
     url: 'https://nairobiwire.com/category/business/feed/',
+    category: 'business',
+    enabled: true
+  },
+  {
+    name: 'Tukio Business',
+    url: 'https://tukio.co.ke/category/business/feed/',
     category: 'business',
     enabled: true
   },
@@ -74,6 +86,12 @@ export const defaultFeeds = [
     category: 'technology',
     enabled: true
   },
+  {
+    name: 'Tukio Tech',
+    url: 'https://tukio.co.ke/category/technology/feed/',
+    category: 'technology',
+    enabled: true
+  },
   // Lifestyle
   {
     name: 'Capital FM Lifestyle',
@@ -87,6 +105,12 @@ export const defaultFeeds = [
     category: 'lifestyle',
     enabled: true
   },
+  {
+    name: 'Tukio Lifestyle',
+    url: 'https://tukio.co.ke/category/lifestyle/feed/',
+    category: 'lifestyle',
+    enabled: true
+  },
   // Videos
   {
     name: 'Capital FM Videos',
@@ -94,10 +118,22 @@ export const defaultFeeds = [
     category: 'videos',
     enabled: true
   },
+  {
+    name: 'Tukio Videos',
+    url: 'https://tukio.co.ke/category/videos/feed/',
+    category: 'videos',
+    enabled: true
+  },
   // Reviews 
   {
     name: 'Nairobi Wire Reviews',
     url: 'https://nairobiwire.com/category/reviews/feed/',
+    category: 'reviews',
+    enabled: true
+  },
+  {
+    name: 'Tukio Reviews',
+    url: 'https://tukio.co.ke/category/reviews/feed/',
     category: 'reviews',
     enabled: true
   },
@@ -114,6 +150,12 @@ export const defaultFeeds = [
     category: 'featured',
     enabled: true
   },
+  {
+    name: 'Tukio Featured',
+    url: 'https://tukio.co.ke/category/featured/feed/',
+    category: 'featured',
+    enabled: true
+  },
   // Podcasts
   {
     name: 'Capital FM Podcasts',
@@ -124,6 +166,12 @@ export const defaultFeeds = [
   {
     name: 'Nairobi Wire Podcasts',
     url: 'https://nairobiwire.com/category/podcasts/feed/',
+    category: 'podcasts',
+    enabled: true
+  },
+  {
+    name: 'Tukio Podcasts',
+    url: 'https://tukio.co.ke/category/podcasts/feed/',
     category: 'podcasts',
     enabled: true
   }
